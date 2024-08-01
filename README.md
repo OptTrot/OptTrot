@@ -35,3 +35,11 @@ You can set a arbitrary qubit numbers up to 8,589,934,588 number of qubits by se
 |Qiskit| OptTrot | Numpy Corresponding|
 |:------:|:-----:|:-------------------:|
 |27μs+-161ns| 1.31μs+-3.89ns | 11.7μs +- 102ns|
+
+
+### Install the module
+
+```
+python setup.py build
+python setup.py build_ext --inplace
+```
