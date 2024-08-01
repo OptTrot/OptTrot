@@ -1,0 +1,7 @@
+
+- HEAP type implementation:
+    Current `PauliElement_` was implemented with stack type object.
+    For the further expansion, it is wise to be modified in Python environment.
+    Unfortunately, static implementations are immutable.
+    We have to implement the class with heap element.
+     

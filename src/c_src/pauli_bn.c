@@ -10,7 +10,7 @@ static PyModuleDef PauliModule = {
 
 // Assign related method for the struct.
 //static PyTypeObject _PauliElementType = 
-PyTypeObject _PauliElementType = {
+static PyTypeObject _PauliElementType = {
     PyVarObject_HEAD_INIT(NULL, 0)
     .tp_name = "pauli._PauliElement",
     .tp_doc = PyDoc_STR("Basic Pauli element"),
