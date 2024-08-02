@@ -8,7 +8,8 @@ from pauli_c import PauliElement
 from pauli_utils import (
     FLT_EPS, ij_code2sym_code,
     pauli_to_pennylane,
-    pauli_to_qiskit
+    pauli_to_qiskit,
+    pstr2sym_code,
     )
 
 class PauliPoly:
@@ -29,6 +30,7 @@ class PauliPoly:
 
         #iteration routine
         self._iter_current = 0
+    
     @classmethod
     def from_coef_mat(cls, coef_mat:np.matrix, tol=FLT_EPS):
         n, m = coef_mat.shape
@@ -40,7 +42,7 @@ class PauliPoly:
                     continue
                 x, z = ij_code2sym_code(i, j)
                 p_list.append(PauliElement(nx=x, nz=z, n=qubits, weight=coef_mat[i, j]))
-        return cls(p_list)
+        return cls(p_list) # convert from list
     @classmethod
     def from_matrix(cls, mat:np.matrix, tol=FLT_EPS):
         # Tensorized decomposition See Hantzko et al, 2023.
@@ -67,19 +69,19 @@ class PauliPoly:
         return cls.from_coef_mat(mat, tol=tol)
     @property
     def terms(self):
-        return [p.string for p in self._terms]
+        return [p.string for p in self._terms] # convert to list and sort
     @property
     def coefficients(self):
         return [p.coef for p in self._terms]
     @property
     def poly(self):
-        return self._terms
+        return self._terms # convert to list
     @property
     def coef_matrix(self):
         n = self._terms[0].n
         nn = 2**n
         mat = np.zeros((nn, nn), dtype=complex)
-        for p in self._terms:
+        for p in self._terms: # change from dict, key
             mat[*p.coef_ij] = p.coef
         return mat
     
@@ -91,11 +93,11 @@ class PauliPoly:
         return st + st_term+"\n]"
 
     def __rmul__(self, other:Number):
-        for i in range(len(self._terms)):
+        for i in range(len(self._terms)): #convert to dict routine
             self._terms[i].coef *= other
     
     def __add__(self, other: Union[PauliElement, PauliPoly]):
-        if isinstance(other, PauliElement):
+        if isinstance(other, PauliElement): # Use in and & operator
             p = PauliPoly([other])
         else:
             p = other
