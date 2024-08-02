@@ -18,6 +18,15 @@ typedef struct{
     double weight; // w * P
 } _PauliElement;
 
+// Module definition
+static PyModuleDef PauliModule = {
+    PyModuleDef_HEAD_INIT,
+    .m_name = "pauli_c",
+    .m_doc = "Pauli element manipulation core written in C.",
+    .m_size = -1
+};
+
+
 static void _PauliElement_dealloc(_PauliElement *self);
 static PyObject* _PauliElement_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
 static int _PauliElement_init(_PauliElement *self, PyObject *args, PyObject *kwds);
@@ -73,7 +82,7 @@ static PyMethodDef _PauliElement_methods[] = {
     },
     {"otimes", (PyCFunction)_PauliElement_otimes, METH_O,
      "Compute the Kronecker product of two Pauli elements."
-    },
+    }
     {NULL}  /* Sentinel */
 };
 
@@ -84,6 +93,50 @@ static  PyNumberMethods _PauliElement_nb_methods ={
     .nb_matrix_multiply = (binaryfunc)_PauliElement_mat_mul,
 };
 
+// Assign related method for the struct.
+// Heap version
+static PyType_Slot _PauliElement_slots[] = {
+    {Py_tp_new, (void*)_PauliElement_new},
+    {Py_tp_init, (void*)_PauliElement_init},
+    {Py_tp_dealloc, (void*)_PauliElement_dealloc},
+    {Py_tp_repr, (void*)_PauliElement_repr},
+    {Py_tp_str, (void*)_PauliElement_str},
+    {Py_tp_methods, (void*)_PauliElement_methods},
+    {Py_tp_getset, (void*)_PauliElement_getsetters},
+    {Py_tp_richcompare, (void*)_PauliElement_richcompare},
+    {Py_nb_multiply, (binaryfunc)_PauliElement_mul},
+    {Py_nb_matrix_multiply, (binaryfunc)_PauliElement_mat_mul},
+    {0, NULL} // Sentinel
+};
+
+static PyType_Spec _PauliElement_spec ={
+    .name="pauli._PauliElement",
+    .basicsize =sizeof(_PauliElement),
+    .itemsize=0,
+    .flags=Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .slots = _PauliElement_slots
+};
+
+//Static version
+// Job: find a routine which makes "new", and replace the static ones.
+// static PyTypeObject _PauliElementType_s = {
+//     PyVarObject_HEAD_INIT(NULL, 0)
+//     .tp_name = "pauli._PauliElement_s",
+//     .tp_doc = PyDoc_STR("Basic Pauli element"),
+//     .tp_basicsize = sizeof(_PauliElement),
+//     .tp_itemsize = 0, // What is different with basicsize?
+//     .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+//     .tp_new = _PauliElement_new_s,
+//     .tp_init = (initproc) _PauliElement_init,
+//     .tp_dealloc = (destructor) _PauliElement_dealloc,
+//     .tp_repr = (reprfunc)_PauliElement_repr,
+//     .tp_str = (reprfunc)_PauliElement_str,
+//     //.tp_memebers = _PauliElement_members,
+//     .tp_methods = _PauliElement_methods,
+//     .tp_getset = _PauliElement_getsetters,
+//     .tp_as_number = &_PauliElement_nb_methods,
+//     .tp_richcompare = (richcmpfunc)_PauliElement_richcompare,
+// };
 // Utils function------------------------------------
 #define ASCII_I 73
 #define ASCII_X 88

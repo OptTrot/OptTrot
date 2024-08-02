@@ -13,7 +13,7 @@ pauli_module = Extension(
         'src/c_src/bn/bn_python.c'
     ],
     include_dirs=['src', 'src/c_src', 'src/c_src/bn'],  # Include directories for header files
-    define_macros=[("BIG_NUM_BYTES", "512")]
+    define_macros=[("BIG_NUM_BYTES", "1024")]
 )
 
 # Run the setup

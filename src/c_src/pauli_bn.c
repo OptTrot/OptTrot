@@ -1,33 +1,6 @@
 #include "pauli_bn.h"
 
-// Module definition
-static PyModuleDef PauliModule = {
-    PyModuleDef_HEAD_INIT,
-    .m_name = "pauli_c",
-    .m_doc = "Pauli element manipulation core written in C.",
-    .m_size = -1
-};
 
-// Assign related method for the struct.
-//static PyTypeObject _PauliElementType = 
-static PyTypeObject _PauliElementType = {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name = "pauli._PauliElement",
-    .tp_doc = PyDoc_STR("Basic Pauli element"),
-    .tp_basicsize = sizeof(_PauliElement),
-    .tp_itemsize = 0, // What is different with basicsize?
-    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-    .tp_new = _PauliElement_new,
-    .tp_init = (initproc) _PauliElement_init,
-    .tp_dealloc = (destructor) _PauliElement_dealloc,
-    .tp_repr = (reprfunc)_PauliElement_repr,
-    .tp_str = (reprfunc)_PauliElement_str,
-    //.tp_memebers = _PauliElement_members,
-    .tp_methods = _PauliElement_methods,
-    .tp_getset = _PauliElement_getsetters,
-    .tp_as_number = &_PauliElement_nb_methods,
-    .tp_richcompare = (richcmpfunc)_PauliElement_richcompare,
-};
 
 // Property, get, set methods
 /*
@@ -148,6 +121,7 @@ static int _PauliElement_init(_PauliElement *self, PyObject *args, PyObject *kwd
     return 0;
 }
 
+
 // Internal methodss
 static PyObject *_PauliElement_repr(_PauliElement *self) {
     return PyUnicode_FromFormat("_PauliElement(n=%d)", self->n);
@@ -163,7 +137,7 @@ static PyObject * _PauliElement_str(_PauliElement * self){
 //Comparsion
 
 static PyObject * _PauliElement_richcompare(_PauliElement *self, _PauliElement *other, int op){
-    if(!PyObject_TypeCheck(other, &_PauliElementType)){
+    if(!PyObject_TypeCheck(other, (PyTypeObject *)PyType_FromSpec(&_PauliElement_spec))){
         PyErr_SetString(PyExc_TypeError, "Expected a _PauliElement object");
         return NULL;
     }
@@ -321,7 +295,7 @@ _PauliElement_otimes(_PauliElement * self, _PauliElement *other){
 */
 
 static PyObject *_PauliElement_otimes(_PauliElement *self, _PauliElement *other) {
-    if (!PyObject_TypeCheck(other, &_PauliElementType)) {
+    if (!PyObject_TypeCheck(other, (PyTypeObject *)PyType_FromSpec(&_PauliElement_spec))) {
         PyErr_SetString(PyExc_TypeError, "Expected a _PauliElement object");
         return NULL;
     }
@@ -333,7 +307,7 @@ static PyObject *_PauliElement_otimes(_PauliElement *self, _PauliElement *other)
         return NULL;
     }
 
-    _PauliElement *result = (_PauliElement *)_PauliElement_new(&_PauliElementType, NULL, NULL);
+    _PauliElement *result = (_PauliElement *)_PauliElement_new((PyTypeObject *)PyType_FromSpec(&_PauliElement_spec), NULL, NULL);
     if (!result) {
         return NULL;
     }
@@ -362,8 +336,8 @@ static PyObject *_PauliElement_otimes(_PauliElement *self, _PauliElement *other)
 
 static PyObject* _PauliElement_mul(PyObject* left, _PauliElement * right){
     // Check if `left` is an instance of _PauliElement
-    bool left_is_pauli = PyObject_TypeCheck(left, &_PauliElementType);
-    bool right_is_pauli = PyObject_TypeCheck(right, &_PauliElementType);
+    bool left_is_pauli = PyObject_TypeCheck(left,  (PyTypeObject *)PyType_FromSpec(&_PauliElement_spec));
+    bool right_is_pauli = PyObject_TypeCheck(right, (PyTypeObject *)PyType_FromSpec(&_PauliElement_spec));
     bool is_long = PyLong_Check(left);
     bool is_float = PyFloat_Check(left);
 
@@ -376,7 +350,7 @@ static PyObject* _PauliElement_mul(PyObject* left, _PauliElement * right){
         Py_RETURN_NOTIMPLEMENTED;
     }
 
-    _PauliElement *result = (_PauliElement *)_PauliElement_new(&_PauliElementType, NULL, NULL);
+    _PauliElement *result = (_PauliElement *)_PauliElement_new((PyTypeObject *)PyType_FromSpec(&_PauliElement_spec), NULL, NULL);
     if (!result) {
         return NULL;
     }
@@ -400,7 +374,7 @@ static PyObject * _PauliElement_mat_mul(_PauliElement *self, _PauliElement *othe
         return NULL; 
     }
     struct bn tmp;
-    _PauliElement *result = (_PauliElement *)_PauliElement_new(&_PauliElementType, NULL, NULL);
+    _PauliElement *result = (_PauliElement *)_PauliElement_new((PyTypeObject *)PyType_FromSpec(&_PauliElement_spec), NULL, NULL);
     
     bignum_xor(&(self->nx), &(other->nx), &result->nx);
     bignum_xor(&(self->nz), &(other->nz), &result->nz);
@@ -445,17 +419,29 @@ PyMODINIT_FUNC
 PyInit_pauli_c(void)
 {
     PyObject *m;
-    if (PyType_Ready(&_PauliElementType) < 0)
-        return NULL;
 
+    
+    //Heap version
     m = PyModule_Create(&PauliModule);
     if (m == NULL)
         return NULL;
 
-    if (PyModule_AddObjectRef(m, "_PauliElement", (PyObject *) &_PauliElementType) < 0) {
+    PyObject* _PauliElementType = PyType_FromSpec(&_PauliElement_spec);
+    Py_INCREF(_PauliElementType);
+
+    if (PyModule_AddObject(m, "_PauliElement", _PauliElementType) < 0) {
+        Py_DECREF(_PauliElementType);
         Py_DECREF(m);
         return NULL;
     }
+
+    //Static version
+    //if (PyType_Ready(&_PauliElementType) < 0)
+    //    return NULL;
+    //if (PyModule_AddObjectRef(m, "_PauliElement", (PyObject *) &_PauliElementType) < 0) {
+    //    Py_DECREF(m);
+    //    return NULL;
+    //}
 
     return m;
 }

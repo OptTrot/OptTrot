@@ -4,4 +4,5 @@
     For the further expansion, it is wise to be modified in Python environment.
     Unfortunately, static implementations are immutable.
     We have to implement the class with heap element.
-     
+
+- The heap version is getting slower as the number of python attributes increases. -> Let them accelerate the routine by provide a static version module.
