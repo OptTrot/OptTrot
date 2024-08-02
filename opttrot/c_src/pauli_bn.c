@@ -117,6 +117,9 @@ static int PauliElement_init(PauliElement *self, PyObject *args, PyObject *kwds)
     }
 
     // Qubit and code verification.
+    // This routine makes an error in large qubit number near the limit of qubits.
+    // It would be wise to calculate the maximum qubit as Macro.
+    
     struct bn bn_tmp, bn_max_n;
     bignum_init(&bn_max_n);
     bignum_from_int(&bn_tmp, 1);
