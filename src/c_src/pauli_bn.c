@@ -150,7 +150,11 @@ static int _PauliElement_init(_PauliElement *self, PyObject *args, PyObject *kwd
 
 // Internal methodss
 static PyObject *_PauliElement_repr(_PauliElement *self) {
-    return PyUnicode_FromFormat("_PauliElement(n=%d)", self->n);
+    char buff[8192];// Change it using length macros.
+    memset(buff, '\0', sizeof(buff)); // Clear the array
+    bignum_tuple_to_pstr(&self->nx, &self->nz, self->n, buff, sizeof(buff));
+    
+    return PyUnicode_FromFormat("PauliElement(n=%d, weight=%f, %s)", self->n, self->weight, buff);
 }
 static PyObject * _PauliElement_str(_PauliElement * self){
     char buff[8192];// Change it using length macros.
