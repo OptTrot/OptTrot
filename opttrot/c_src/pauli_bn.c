@@ -22,6 +22,7 @@ static PyTypeObject PauliElementType = {
     .tp_dealloc = (destructor) PauliElement_dealloc,
     .tp_repr = (reprfunc)PauliElement_repr,
     .tp_str = (reprfunc)PauliElement_str,
+    .tp_hash = (hashfunc)PauliElement_hash,
     //.tp_memebers = PauliElement_members,
     .tp_methods = PauliElement_methods,
     .tp_getset = PauliElement_getsetters,
@@ -168,7 +169,7 @@ static PyObject * PauliElement_str(PauliElement * self){
     return PyUnicode_FromFormat("%s", buff);
 }
 static Py_hash_t PauliElement_hash(PauliElement *self){
-    PyObject *tuple = PyTuple_Pack(2, PyLong_FromBignum(self->nx), PyLong_FromBignum(self->nz));
+    PyObject *tuple = PyTuple_Pack(2, _PyLong_FromBignum(&(self->nx)), _PyLong_FromBignum(&(self->nz)));
     if (!tuple) {return -1;}
     Py_hash_t hash = PyObject_Hash(tuple);
     Py_DECREF(tuple);

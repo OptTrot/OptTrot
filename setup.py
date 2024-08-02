@@ -6,6 +6,7 @@ src_name = "opttrot"
 def get_path(st:str):
     return str((FILE_PATH/st).absolute())
 
+print(get_path(src_name))
 sources_list = [
     f'{src_name}/c_src/pauli_bn.c',
     f'{src_name}/c_src/bn/bn.c',
@@ -31,8 +32,8 @@ setup(
     name='opttrot',
     version='0.1',
     description='Pauli element manipulation library',
-    packages=find_packages(where=src_name),
-    package_dir={'': src_name},
+    packages=find_packages(where=get_path(src_name)),
+    package_dir={'': get_path(src_name)},
     ext_modules=[pauli_module],
     py_modules=[
         'opttrot'
