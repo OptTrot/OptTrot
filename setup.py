@@ -1,7 +1,9 @@
 from setuptools import setup, Extension, find_packages
 from pathlib import Path
 
-FILE_PATH = Path(__file__).parent
+sep_path = __file__.split("..")
+FILE_PATH = Path(sep_path[0]).parent
+print("First:", FILE_PATH)
 src_name = "opttrot"
 def get_path(st:str):
     return str((FILE_PATH/st).absolute())
