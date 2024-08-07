@@ -4,8 +4,8 @@ from functools import reduce
 
 import numpy as np
 
-from pauli_c import PauliElement
-from utils import krons
+from .pauli_c import PauliElement
+from .utils import krons
 
 #-------------------
 FLT_EPS = 1E-8
@@ -27,7 +27,8 @@ def pstr2mat(pstr:str)->np.matrix:
         result = []
         for p in pstr:
             result.append(PAULI_MATRICES[p])
-        return krons(result)
+        phase = (-1j)**(pstr.count("Y")%4)
+        return phase*krons(result)
 
 def pstr2sym_code(pstr:str, sim_code:Union[dict, None]=None)->Tuple[int,int]:
         if sim_code is None:
@@ -47,6 +48,8 @@ def pstr2sym_code(pstr:str, sim_code:Union[dict, None]=None)->Tuple[int,int]:
             z_num += nz*num
             num += num # 2*num
         return (x_num, z_num)
+def pstr2ij_code(pstr:str):
+     return sym_code2ij_code(pstr2sym_code(pstr))
 def sym_code2ij_code(x, z):
         return z, x^z
 def ij_code2sym_code(i, j):
@@ -81,7 +84,13 @@ def sym_code2pstr(ns:Tuple[int, int], l:int)->str:
             else:
                 result.append("Z")
         return "".join(result)
-
+def ij_code2_pstr(ns:Tuple[int, int], l:int)->str:
+     return sym_code2pstr(ij_code2sym_code(*ns))
+# General Pauli terms
+def get_pstrs(n:int):
+     return list(map(lambda x: "".join(x), product(f"IXYZ", repeat=int(n))))
+def pstrs2mats(pstrs:list[str]):
+     return [pstr2mat(p) for p in pstrs]
 def get_pauli_fam_terms(n, fam="Z"):
         return list(map(lambda x: "".join(x), product(f"I{fam}", repeat=int(n))))
 def get_pauli_fam_mat(n, fam="Z"):

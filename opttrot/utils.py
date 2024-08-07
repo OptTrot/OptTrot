@@ -3,7 +3,6 @@ import numpy as np
 
 
 # Matrix-Tensor operators
-
 def krons(*oper_list)->np.matrix:
     """Kronecker product(=Tensor product of matrix).
     
@@ -15,7 +14,7 @@ def krons(*oper_list)->np.matrix:
     return reduce(np.kron, oper_list)
 
 def fro_inner(A:np.matrix, B:np.matrix):
-    """Frobineous inner product of two given square matrices, :code:`A` and :code:`B`.
+    r"""Frobineous inner product of two given square matrices, :code:`A` and :code:`B`.
 
     .. math:
         \langle A | B \rangle = \frac{1}{n} A^\dagger B
@@ -26,6 +25,7 @@ def fro_inner(A:np.matrix, B:np.matrix):
     Returns:
         _type_: _description_
     """
+    
     na1, na2 = A.shape
     nb1, nb2 = B.shape
     assert na1 == na2, "First matrix was not a square matrix."
