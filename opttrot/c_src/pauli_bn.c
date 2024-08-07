@@ -44,7 +44,8 @@ typedef struct {
 // Methods--------------------------------------
 // --Essential Methods------
 // ----Dealloc
-static void PauliElement_dealloc(PauliElement * self){
+static void PauliElement_dealloc(PauliElement * self)
+{
     // They are not allocated values, 
     // We don't have to dealloc the variables.
     //Py_XDECREF(self->nx);
@@ -64,26 +65,36 @@ PauliElement_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         bignum_init(&self->nz);
         self->n = 1;
         self->f = 0;
-        self->weight = 0.;
+        self->weight.real = 0.;
+        self->weight.imag = 0.;
 
         return (PyObject *) self;
     }
     return NULL;
 }
 
+static PyObject * 
+_PauliElement_copy()
 static int PauliElement_init(PauliElement *self, PyObject *args, PyObject *kwds) {
-    static char *kwlist[] = {"nx", "nz", "n", "weight", "f", "set_phase", NULL};
+    static char *kwlist[] = {"nx", "nz", "n", "weight", NULL};
     PyObject *nx = NULL;
     PyObject *nz = NULL;
-    unsigned int n = 1, f = 0;
-    double weight = 1.0;
-    bool set_phase = false;
+    unsigned int n = 1;
+    Py_complex weight = {.real=0., .imag=0.};
+    double r_weight = 0.;
+    bool weight_r = false;
 
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|OOIdIb", kwlist, &nx, &nz, &n, &weight, &f, &set_phase)) {
-        PyErr_SetString(PyExc_TypeError, "Failed to parse arguments");
-        return -1;
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|OOID", kwlist, &nx, &nz, &n, &weight)) 
+    {
+        if(!PyArg_ParseTupleAndKeywords(args, kwds, "|OOId", kwlist, &nx, &nz, &n, &r_weight))
+        {
+            PyErr_SetString(PyExc_TypeError, "Failed to parse arguments");
+            return -1;
+        }
+        else{weight_r=true;}
     }
+
 
     if (nx == NULL || !PyLong_Check(nx)) {
         PyErr_SetString(PyExc_TypeError, "nx must be an integer");
@@ -94,7 +105,8 @@ static int PauliElement_init(PauliElement *self, PyObject *args, PyObject *kwds)
         return -1;
     }
     
-    switch(PyObject_RichCompareBool(nx, PyLong_FromLong(0), Py_GE)){
+    switch(PyObject_RichCompareBool(nx, PyLong_FromLong(0), Py_GE))
+    {
         // 0:Flase, -1: error, 1 otherwise
         case 0:
             PyErr_SetString(PyExc_ValueError, "nx must be a positive integer.");
@@ -103,7 +115,8 @@ static int PauliElement_init(PauliElement *self, PyObject *args, PyObject *kwds)
             PyErr_SetString(PyExc_ValueError, "nx yields problem.");
             return -1;
     }
-    switch(PyObject_RichCompareBool(nz, PyLong_FromLong(0), Py_GE)){
+    switch(PyObject_RichCompareBool(nz, PyLong_FromLong(0), Py_GE))
+{
         case 0:
             PyErr_SetString(PyExc_ValueError, "nz must be a positive integer.");
             return -1;
@@ -111,7 +124,8 @@ static int PauliElement_init(PauliElement *self, PyObject *args, PyObject *kwds)
             PyErr_SetString(PyExc_ValueError, "nz yields problem.");
             return -1;
     }
-    if(n<=0){
+    if(n<=0)
+    {
         PyErr_SetString(PyExc_ValueError, "n must be greater than 0.");
         return -1;
     }
@@ -140,15 +154,23 @@ static int PauliElement_init(PauliElement *self, PyObject *args, PyObject *kwds)
     }
 
     self->n = n;
-    // Calculate  f value from nx, nz
-    if(!set_phase){
-        struct bn tmp;
-        bignum_and(&(self->nx), &(self->nz), &tmp);
-        f = bignum_bit_count(&tmp)%4;
-    }
-    self->f = f; 
-    self->weight = weight;
 
+    struct bn tmp;
+    bignum_and(&(self->nx), &(self->nz), &tmp);
+    self->f = bignum_bit_count(&tmp)&3;//%4;
+
+    if(weight_r)
+    {
+        self->weight.real = r_weight;
+        self->weight.imag = 0.;
+
+    }
+    else
+    {
+        self->weight.real = weight.real;
+        self->weight.imag = weight.imag;
+    }
+    
     return 0;
 }
 
@@ -159,19 +181,21 @@ static PyObject *PauliElement_repr(PauliElement *self) {
     bignum_tuple_to_pstr(&self->nx, &self->nz, self->n, buff, sizeof(buff));
 
     char wchar[50];
-    snprintf(wchar, 50, "%f", (double)self->weight);
+    snprintf(wchar, 50, "%f+(%f)j", (double)(self->weight).real, (double)(self->weight).imag);
     PyObject * wstr = PyUnicode_FromString(wchar);
     
     return PyUnicode_FromFormat("PauliElement(n=%d, weight=%U, %s)", self->n, wstr , buff);
 }
-static PyObject * PauliElement_str(PauliElement * self){
+static PyObject * PauliElement_str(PauliElement * self)
+{
     char buff[8192];// Change it using length macros.
     memset(buff, '\0', sizeof(buff)); // Clear the array
     bignum_tuple_to_pstr(&self->nx, &self->nz, self->n, buff, sizeof(buff));
     
     return PyUnicode_FromFormat("%s", buff);
 }
-static Py_hash_t PauliElement_hash(PauliElement *self){
+static Py_hash_t PauliElement_hash(PauliElement *self)
+{
     PyObject *tuple = PyTuple_Pack(2, _PyLong_FromBignum(&(self->nx)), _PyLong_FromBignum(&(self->nz)));
     if (!tuple) {return -1;}
     Py_hash_t hash = PyObject_Hash(tuple);
@@ -180,8 +204,10 @@ static Py_hash_t PauliElement_hash(PauliElement *self){
 }
 //Comparsion
 
-static PyObject * PauliElement_richcompare(PauliElement *self, PauliElement *other, int op){
-    if(!PyObject_TypeCheck(other, &PauliElementType)){
+static PyObject * PauliElement_richcompare(PauliElement *self, PauliElement *other, int op)
+{
+    if(!PyObject_TypeCheck(other, &PauliElementType))
+    {
         PyErr_SetString(PyExc_TypeError, "Expected a PauliElement object");
         return NULL;
     }
@@ -191,7 +217,8 @@ static PyObject * PauliElement_richcompare(PauliElement *self, PauliElement *oth
     bool bool_x=true, bool_z=true;
     bool bool_tmp = false;
     //bool bool_f=true; Let the users to compare the phase as they want.
-    switch(op){
+    switch(op)
+    {
         case Py_LT: //<
         case Py_LE: // <=
             bool_x = bignum_lt(&(self->nx), &(other->nx));
@@ -247,14 +274,16 @@ static PyObject *PauliElement_get_f(PauliElement *self, void *closure) {
     return PyLong_FromLong(self->f);
 }
 static PyObject *PauliElement_get_weight(PauliElement *self, void *closure) {
-    return PyFloat_FromDouble(self->weight);
+    return PyComplex_FromCComplex(self->weight);
 }
 
-static PyObject * PauliElement_get_symplectic_code(PauliElement *self, void *closure){
+static PyObject * PauliElement_get_symplectic_code(PauliElement *self, void *closure)
+{
     return PyTuple_Pack(2, _PyLong_FromBignum(&(self->nx)), _PyLong_FromBignum(&(self->nz)));
 }
 
-static PyObject * PauliElement_get_ij_code(PauliElement *self, void *closure){
+static PyObject * PauliElement_get_ij_code(PauliElement *self, void *closure)
+{
     struct bn i, j;
     bignum_init(&i);
     bignum_init(&j);
@@ -268,7 +297,9 @@ static PyObject * PauliElement_get_ij_code(PauliElement *self, void *closure){
 size_t bignum_tuple_to_pstr(
     struct bn * nx, struct bn *nz, 
     size_t qubits,
-    char * buff, size_t buff_size){
+    char * buff, size_t buff_size)
+    {
+        // Error qubits <=31 work well, but not for >32.
 
     // Calculate access units
     int bit_unit = sizeof(DTYPE) * 8;
@@ -277,7 +308,8 @@ size_t bignum_tuple_to_pstr(
 
     int j = 0, k=0;
     int i=BN_ARRAY_SIZE-max_index_arr;
-    for(; i < BN_ARRAY_SIZE+1; i++){
+    for(; i < BN_ARRAY_SIZE+1; i++)
+    {
         j = BN_ARRAY_SIZE -i;
         _ints_to_pstr(nx->array[j], nz->array[j], sizeof(DTYPE), buff+k*sizeof(DTYPE));
         k++;
@@ -303,7 +335,8 @@ static PyObject *PauliElement_get_pstr(PauliElement *self, void *closure) {
 
 
 
-//static PyObject *_PauliEleemnt_get_tuple(PauliElement *self, void *closure){
+//static PyObject *_PauliEleemnt_get_tuple(PauliElement *self, void *closure)
+//{
 //
 //}
 
@@ -321,9 +354,11 @@ static PyObject *PauliElement_get_pstr(PauliElement *self, void *closure) {
 
 /* Initial implementation
 staitc PyObject *
-PauliElement_otimes(PauliElement * self, PauliElement *other){
+PauliElement_otimes(PauliElement * self, PauliElement *other)
+{
     int output_dim = self->n + other->n;
-    if(output_dim  > BIG_NUM_BYTES){
+    if(output_dim  > BIG_NUM_BYTES)
+{
         //Raise error
     }
     struct bn tmp1, tmp2;
@@ -346,7 +381,8 @@ static PyObject *PauliElement_otimes(PauliElement *self, PauliElement *other) {
 
     int output_dim = self->n + other->n;
 
-    if (output_dim > 8*BIG_NUM_BYTES) {
+    if (output_dim > 8*BIG_NUM_BYTES) 
+    {
         PyErr_SetString(PyExc_ValueError, "Resulting dimension exceeds the maximum allowed size");
         return NULL;
     }
@@ -363,34 +399,117 @@ static PyObject *PauliElement_otimes(PauliElement *self, PauliElement *other) {
     bignum_xor(&self->nz, &other->nz, &result->nz);
 
     result->n = self->n + other->n;
-    result->weight = self->weight * other->weight;
-    result->f = (self->f + other->f)%4;
+    result->weight = _Py_c_prod(self->weight, other->weight);
+    result->f = (self->f + other->f)&3;//%4 <- Check it
 
     return (PyObject *)result;
 }
 
 
 // Methods
-//static PyObject * PauliElement_add(PyObject *self, PyObject *other){
-//
-//}
-//static PyObject * PauliElement_mul(PyObject *self, PyObject *other){
-//
-//}
+static PyObject * PauliElement_add(PauliElement *self, PauliElement *other)
+{
+    bool self_is_pauli = PyObject_TypeCheck(self, &PauliElementType);
+    bool other_is_pauli = PyObject_TypeCheck(other, &PauliElementType);
 
-static PyObject* PauliElement_mul(PyObject* left, PauliElement * right){
-    // Check if `left` is an instance of PauliElement
-    bool left_is_pauli = PyObject_TypeCheck(left, &PauliElementType);
-    bool right_is_pauli = PyObject_TypeCheck(right, &PauliElementType);
-    bool is_long = PyLong_Check(left);
-    bool is_float = PyFloat_Check(left);
+    if(!self_is_pauli || !other_is_pauli)
+    {
+        //PyErr_SetString(PyExc_TypeError, "Addition is not supported for PauliElement and diff element.");
+        //return NULL;
+        return self;
+    }
 
-    if (left_is_pauli&& right_is_pauli) {
-        PyErr_SetString(PyExc_TypeError, "Multiplication between two Pauli elements instances is not supported.");
+    if(self->n != other->n)
+    {
+        PyErr_SetString(PyExc_ValueError, "Addition is not supported for two different PauliElements.");
+        return NULL;
+    }
+    bool same = bignum_eq(&self->nx, &other->nx) && bignum_eq(&self->nz, &other->nz);
+
+    if(!same)
+    {
+        PyErr_SetString(PyExc_ValueError, "Addition is not supported for two different PauliElements.");
+        return NULL;
+    }
+    
+    PauliElement *result = (PauliElement *)PauliElement_new(&PauliElementType, NULL, NULL);
+    if (!result) {
+        return NULL;
+    }
+    bignum_assign(&result->nx, &self->nx);
+    bignum_assign(&result->nz, &self->nz);
+
+    result->n = self->n;
+    // (w1 (-i)^f1 + w2 (-i)^f2 )/ (-i)^f1 = w1 + (-i)^{f2-f1} w2
+    // The below two lines were used when the phase effects had been on 'f' value.
+    // Now, we replaced the phase effect to the 'weight' attribute.
+
+    //int relp_index = (4+(other->f-self->f))&3; // Error do not use >>2, use &3
+    //result->weight = _Py_c_sum(self->weight, _Py_c_prod(PHASE[relp_index], other->weight));
+    result->weight = _Py_c_sum(self->weight, other->weight);
+    result->f = self->f;
+
+    return (PyObject *)result;
+}
+static PyObject * PauliElement_sub(PauliElement * self, PauliElement *other)
+{
+    bool self_is_pauli = PyObject_TypeCheck(self, &PauliElementType);
+    bool other_is_pauli = PyObject_TypeCheck(other, &PauliElementType);
+
+    if(!self_is_pauli || !other_is_pauli)
+    {
+        PyErr_SetString(PyExc_TypeError, "Addition is not supported for PauliElement and diff element.");
         return NULL;
     }
 
-    if (!is_long && !is_float) {
+    if(self->n != other->n)
+    {
+        PyErr_SetString(PyExc_ValueError, "Addition is not supported for two different PauliElements.");
+        return NULL;
+    }
+    bool same = bignum_eq(&self->nx, &other->nx) && bignum_eq(&self->nz, &other->nz);
+
+    if(!same)
+    {
+        PyErr_SetString(PyExc_ValueError, "Addition is not supported for two different PauliElements.");
+        return NULL;
+    }
+    PauliElement *result = (PauliElement *)PauliElement_new(&PauliElementType, NULL, NULL);
+    if (!result) {
+        return NULL;
+    }
+    bignum_assign(&result->nx, &self->nx);
+    bignum_assign(&result->nz, &self->nz);
+
+    result->n = self->n;
+    result->weight = _Py_c_sum(self->weight, _Py_c_neg(other->weight));
+    result->f = self->f;
+
+    return (PyObject *)result;
+}
+
+
+static PyObject* PauliElement_mul(PyObject* left, PyObject * right)
+{
+    // Check if `left` is an instance of PauliElement
+    bool left_is_pauli = PyObject_TypeCheck(left, &PauliElementType);
+    bool right_is_pauli = PyObject_TypeCheck(right, &PauliElementType);
+
+
+    if (left_is_pauli&& right_is_pauli)
+    {
+        PyErr_SetString(PyExc_TypeError, "Multiplication between two Pauli elements instances is not supported. Use @ for Pauli algebra.");
+        return NULL;
+    }
+
+    PyObject * num_object = (left_is_pauli? right : left);
+    PauliElement * pauli_object = (PauliElement * )(left_is_pauli? left : right);
+
+    bool is_long    = PyLong_Check(   num_object);
+    bool is_float   = PyFloat_Check(  num_object);
+    bool is_complex = PyComplex_Check(num_object);
+
+    if (!is_long && !is_float && !is_complex) {
         Py_RETURN_NOTIMPLEMENTED;
     }
 
@@ -401,19 +520,32 @@ static PyObject* PauliElement_mul(PyObject* left, PauliElement * right){
 
     // Rmul
 
-    bignum_assign(&result->nx, &right->nx);
-    bignum_assign(&result->nz, &right->nz);
+    bignum_assign(&result->nx, &pauli_object->nx);
+    bignum_assign(&result->nz, &pauli_object->nz);
 
-    result->n = right->n;
-    result->weight = right->weight * (is_long? PyLong_AsDouble(left): PyFloat_AsDouble(left));
-    result->f = right->f;
+    result->n = pauli_object->n;
+
+    Py_complex tmp = {0., 0.};
+    if(is_complex)
+    {
+        tmp = PyComplex_AsCComplex(num_object);
+    }
+    else
+    {
+        tmp.real = (is_long? PyLong_AsDouble(num_object): PyFloat_AsDouble(num_object));
+        tmp.imag = 0.;
+    }
+    result->weight = _Py_c_prod(pauli_object->weight, tmp);
+    result->f = pauli_object->f;
 
     return (PyObject *)result;
 
 }
 
-static PyObject * PauliElement_mat_mul(PauliElement *self, PauliElement *other){
-    if (self->n != other->n){
+static PyObject * PauliElement_mat_mul(PauliElement *self, PauliElement *other)
+{
+    if (self->n != other->n)
+    {
         PyErr_Format(PyExc_ValueError, "The objects must be in same space, (%u != %u)", self->n, other->n);
         return NULL; 
     }
@@ -423,39 +555,51 @@ static PyObject * PauliElement_mat_mul(PauliElement *self, PauliElement *other){
     bignum_xor(&(self->nx), &(other->nx), &result->nx);
     bignum_xor(&(self->nz), &(other->nz), &result->nz);
     result->n = self->n; 
-    result->weight = self->weight * other->weight;
+    result->weight = _Py_c_prod(self->weight, other->weight);
 
     
     // f calculation.
+    int f = 0;
     result->f = 0;
     // Original phase.
     bignum_and(&(self->nx), &(self->nz), &tmp);
-    result->f += bignum_bit_count(&tmp);
+    f += bignum_bit_count(&tmp);
     bignum_and(&(other->nx), &(other->nz), &tmp);
-    result->f += bignum_bit_count(&tmp);
-    // Commutation phase.
-    bignum_and(&(self->nx), &(other->nz), &tmp);
-    result->f += 2*bignum_bit_count(&tmp);
-    bignum_and(&(result->nx), &(result->nz), &tmp);
-    result->f -= bignum_bit_count(&tmp);
+    f += bignum_bit_count(&tmp);
+    //printf("Phase: original:%d\n", result->f);
 
-    result->f = result->f %4;
-     
+    // Commutation phase.
+    bignum_and(&(self->nx), &(other->nz), &tmp) ;
+    f += 2*bignum_bit_count(&tmp);
+
+    bignum_and(&(result->nx), &(result->nz), &tmp);
+    result->f = bignum_bit_count(&tmp); //%4;
+
+    f -= result->f;
+    f = f&3;
+    result->f = result->f&3;
+
+    // Send the remained phase to weight.
+    //int i = (4+(f-result->f))&3;
+    result->weight = _Py_c_prod(PHASE[f], result->weight);
+    
     return (PyObject *)result;//
 }
 
 // ----Commute
 static PyObject *
-PauliElement_commute(PauliElement * self, PauliElement * other){
+PauliElement_commute(PauliElement * self, PauliElement * other)
+{
     struct bn tmp1, tmp2;
     int i=0, j=0;
-    bignum_and(&self->nx, &other->nz, &tmp1);
-    bignum_and(&self->nz, &other->nx, &tmp2);
+    bignum_xor(&self->nx, &other->nz, &tmp1);
+    bignum_xor(&self->nz, &other->nx, &tmp2);
 
-    i = bignum_bit_count(&tmp1);
-    j = bignum_bit_count(&tmp2);
+    i = bignum_bit_count(&tmp1)&1;
+    j = bignum_bit_count(&tmp2)&1;
 
-    if(i==j){Py_RETURN_TRUE;}
+    if(i==j)
+{Py_RETURN_TRUE;}
     else{Py_RETURN_FALSE;}
 }
 //-----
@@ -470,10 +614,29 @@ PyInit_pauli_c(void)
     if (m == NULL)
         return NULL;
 
-    if (PyModule_AddObjectRef(m, "PauliElement", (PyObject *) &PauliElementType) < 0) {
+    if (PyModule_AddObjectRef(m, "PauliElement", (PyObject *) &PauliElementType) < 0) 
+    {
         Py_DECREF(m);
         return NULL;
     }
 
     return m;
+}
+
+
+static PyObject *PauliElement_exact_eq(PauliElement * self, PauliElement * other)
+{
+    if(!PyObject_TypeCheck(other, &PauliElementType))
+    {
+        PyErr_SetString(PyExc_TypeError, "Expected a PauliElement object");
+        return NULL;
+    }
+    if(self->n != other->n){Py_RETURN_FALSE;}
+    if(bignum_eq(&(self->nz), &(other->nz))){Py_RETURN_FALSE;}
+    if(bignum_eq(&(self->nx), &(other->nx))){Py_RETURN_FALSE;}
+    if(self->f != other->f){Py_RETURN_FALSE;}
+    if(fabs((self->weight.real)-(other->weight.real))>DBL_EPSILON){Py_RETURN_FALSE;}
+    if(fabs((self->weight.imag)-(other->weight.imag))>DBL_EPSILON){Py_RETURN_FALSE;}
+    
+    Py_RETURN_TRUE;
 }

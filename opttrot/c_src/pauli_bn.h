@@ -2,6 +2,8 @@
 #include <Python.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <math.h>
+#include <float.h>
 
 #include "bn/bn.h"
 #include "bn/bn_ext.h"
@@ -15,8 +17,15 @@ typedef struct{
     struct bn nz;
     unsigned int n;
     unsigned int f; // (-i)^f
-    double weight; // w * P
+    Py_complex weight; // w * P
 } PauliElement;
+
+Py_complex PHASE[4] = {
+    {.real = 1.,.imag= 0.}, //0
+    {.real = 0.,.imag= -1.}, //1
+    {.real = -1.,.imag= 0.}, //2
+    {.real = 0.,.imag= 1.} //3
+};
 
 static void PauliElement_dealloc(PauliElement *self);
 static PyObject* PauliElement_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
@@ -43,13 +52,15 @@ static PyObject * PauliElement_get_ij_code(PauliElement *self, void *closure);
 //static PyObject *_PauliEleemnt_get_tuple(PauliElement *self, void *closure);
 
 // Methods
-//static PyObject * PauliElement_add(PyObject *self, PyObject *other);
-static PyObject* PauliElement_mul(PyObject* left, PauliElement * right);
+static PyObject * PauliElement_add(PauliElement *self, PauliElement *other);
+static PyObject * PauliElement_sub(PauliElement * self, PauliElement *other);
+static PyObject* PauliElement_mul(PyObject* left, PyObject * right);
 static PyObject * PauliElement_mat_mul(PauliElement *self, PauliElement *other);
 
 // --- custom Methods
 static PyObject *PauliElement_otimes(PauliElement *self, PauliElement *other);
 static PyObject *PauliElement_commute(PauliElement * self, PauliElement * other);
+static PyObject *PauliElement_exact_eq(PauliElement * self, PauliElement * other);
 //static PyObject *PauliElement_to_matrix(PauliElement * self);
 
 
@@ -63,6 +74,7 @@ static PyGetSetDef PauliElement_getsetters[] = {
     {"pstr", (getter)PauliElement_get_pstr, NULL, "Pauli string", NULL},
     {"sym_code", (getter)PauliElement_get_symplectic_code, NULL, "Symplectic representation of Pauli element.", NULL},
     {"ij_code", (getter)PauliElement_get_ij_code, NULL, "Index of Pauli element in coefficient matrix.", NULL},
+    {"exact_eq", (getter)PauliElement_exact_eq, NULL, "Exact comparsion of two Pauli elements, including phase, dim, and weight.", NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -80,7 +92,8 @@ static PyMethodDef PauliElement_methods[] = {
 
 
 static  PyNumberMethods PauliElement_nb_methods ={
-    //.nb_add = PauliElement_add,
+    .nb_add = (binaryfunc)PauliElement_add,
+    .nb_subtract = (binaryfunc)PauliElement_sub,
     .nb_multiply = (binaryfunc)PauliElement_mul,
     .nb_matrix_multiply = (binaryfunc)PauliElement_mat_mul,
 };
