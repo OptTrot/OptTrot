@@ -1,14 +1,18 @@
 #include "bn_ext.h"
 
 // Minor utilities 
-bool bignum_is_even(struct bn* n){return (n->array[0] & 1) == 0;}
-bool bignum_is_odd(struct  bn* n){return !(bignum_is_even(n));}
+bool bignum_is_even(struct bn* n)
+{return (n->array[0] & 1) == 0;}
+bool bignum_is_odd(struct  bn* n)
+{return !(bignum_is_even(n));}
 
 // See the next references
 // https://gurmeet.net/puzzles/fast-bit-counting-routines/
-unsigned int bignum_bit_count(struct bn* n){
+unsigned int bignum_bit_count(struct bn* n)
+{
     unsigned int count = 0;
-    for(int i = 0; i < BN_ARRAY_SIZE; ++i){
+    for(int i = 0; i < BN_ARRAY_SIZE; ++i)
+{
         // block count - > sum
         count += _fast_bit_count32((unsigned int)n->array[i]); 
     }
@@ -51,7 +55,8 @@ Binary: diff structure.
 */
 
 /*
-int bignum_str_cal_nbytes(char *str, int base){
+int bignum_str_cal_nbytes(char *str, int base)
+{
     int str_len = strlen(str);
     int nbytes = 0;
     switch(base)
@@ -70,13 +75,15 @@ int bignum_str_cal_nbytes(char *str, int base){
 }
 */
 
-//int bignum_util_cal_nbytes(char *str, char * tmp_str){
+//int bignum_util_cal_nbytes(char *str, char * tmp_str)
+//{
 //    // Calculate original string length
 //    int nbytes = 0;
 //    int str_len = 0;
 //    
 //    //
-//    if (tmp_str != NULL & sizeof(tmp_str)/sizeof(char) >= nbytes){
+//    if (tmp_str != NULL & sizeof(tmp_str)/sizeof(char) >= nbytes)
+//{
 //        memset(tmp_str, '\0', sizeof(tmp_str));
 //    } 
 //    
@@ -84,7 +91,8 @@ int bignum_str_cal_nbytes(char *str, int base){
 //    return nbytes;
 //}
 
-void bignum_from_bit_string(struct bn * n, char* str, int nbytes){
+void bignum_from_bit_string(struct bn * n, char* str, int nbytes)
+{
     // nbytes represent the binary string data size, 
     // (strlen(bit_str)>>3)
     
@@ -95,7 +103,8 @@ void bignum_from_bit_string(struct bn * n, char* str, int nbytes){
     
     int str_len = 8*nbytes; //Must be same with strlen(str);
 
-    if (str_len > BIT_SIZE_DTYPE){
+    if (str_len > BIT_SIZE_DTYPE)
+{
         require((nbytes % (sizeof(DTYPE))) == 0, "Bit string length must be a multiple of (sizeof(DTYPE)) characters");
     }
 
@@ -103,7 +112,8 @@ void bignum_from_bit_string(struct bn * n, char* str, int nbytes){
 
     DTYPE tmp; // uint64 = 2 * WORD_SIZE
     // The binary length is less than reference dtype:
-    if (str_len <=BIT_SIZE_DTYPE){
+    if (str_len <=BIT_SIZE_DTYPE)
+{
         //printf("Single uint_32\n");
         tmp  = 0 ;
         tmp = (DTYPE)strtoul(&str[0], NULL, 2); 
@@ -114,7 +124,8 @@ void bignum_from_bit_string(struct bn * n, char* str, int nbytes){
         int j = 0;
         char tmp_str[BIT_WORD_SIZE+1];
 
-        while (i >=0){
+        while (i >=0)
+{
             strncpy(tmp_str, &str[i], BIT_WORD_SIZE);
             tmp_str[BIT_WORD_SIZE] = '\0';
             tmp = 0;
@@ -137,10 +148,12 @@ void bignum_from_bit_string(struct bn * n, char* str, int nbytes){
     // using strtol, 2 convert the string to unint8
     // assign n->array[] = integer
 }
-void bignum_from_oct_string(struct bn * n, char* str, int nbytes){
+void bignum_from_oct_string(struct bn * n, char* str, int nbytes)
+{
     ERROR_NOT_IMPLEMENTED_STR("Oct string routine is in developing.");
 }
-void bignum_from_dec_string(struct bn * n, char* str, int nbytes){
+void bignum_from_dec_string(struct bn * n, char* str, int nbytes)
+{
     ERROR_NOT_IMPLEMENTED_STR("Deci string routine is in developing.");
 }
 
@@ -167,16 +180,20 @@ void print_bits(uint32_t num, bool print_newline) {
             printf(" ");
         }
     }
-    if(print_newline){
+    if(print_newline)
+{
         printf("\n");
     }
 }
-void bignum_print_bits(struct bn * num, bool print_newline){
+void bignum_print_bits(struct bn * num, bool print_newline)
+{
     int j = 0;
-    for(int i=1; i < BN_ARRAY_SIZE+1; i++){
+    for(int i=1; i < BN_ARRAY_SIZE+1; i++)
+{
         j = BN_ARRAY_SIZE - i;
         print_bits(num->array[j],0);
-        if(print_newline){
+        if(print_newline)
+{
         printf("\n");
         }
     }
@@ -184,7 +201,8 @@ void bignum_print_bits(struct bn * num, bool print_newline){
 
 // Comparsions==========================================
 
-int _bignum_get_comp_index(struct bn * a, struct bn *b){
+int _bignum_get_comp_index(struct bn * a, struct bn *b)
+{
     int i;
     for (i=BN_ARRAY_SIZE-1; i>0; --i)
     {
@@ -222,15 +240,19 @@ bool bignum_lt(struct bn * a, struct bn *b)
 }
 bool bignum_ge(struct bn * a, struct bn *b)
 {
-    if(bignum_gt(a, b)){return true;}
-    if(bignum_eq(a, b)){return true;}
+    if(bignum_gt(a, b))
+{return true;}
+    if(bignum_eq(a, b))
+{return true;}
     return false;
 
 }
 bool bignum_le(struct bn * a, struct bn *b)
 {
-    if(bignum_lt(a, b)){return true;}
-    if(bignum_eq(a, b)){return true;}
+    if(bignum_lt(a, b))
+{return true;}
+    if(bignum_eq(a, b))
+{return true;}
     return false;
 }
 
@@ -240,7 +262,8 @@ bool bignum_le(struct bn * a, struct bn *b)
 #include<stdlib.h> // strtol()
 
 
-int main(void){
+int main(void)
+{
     /*
     printf("Main program is running. \n");
     int even_num = 34;
@@ -258,7 +281,8 @@ int main(void){
     /*
     char buf[8192]; 
     printf("Bignum int, string routine test");
-    for(int i =0; i<100 ; i++){
+    for(int i =0; i<100 ; i++)
+{
         bignum_from_int(&num, i);
         bignum_to_string(&num, buf, sizeof(buf));
         printf("%d is %s\n", i, buf);
