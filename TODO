@@ -1,15 +1,28 @@
+# Order:
 
-- HEAP type implementation:
+New: up,
+Old: below
+
+# Implementation
+
+
+- Hashable type:
+  - We want to implement the PauliPoly as set objects or other container.
+  - Set object requires hashable type. - Done.
+  
+
+- HEAP type implementation(Meaningless):
     Current `PauliElement_` was implemented with stack type object.
     For the further expansion, it is wise to be modified in Python environment.
     Unfortunately, static implementations are immutable.
     We have to implement the class with heap element.
 
     => Heap types are too slow comparing to static object.
-    Remain the routines as static object and expending with seperated routines.
+    Remain the routines as static object and expending with separated routines.
 
-- Hashable type:
-  - We want to implement the PauliPoly as set objects.
-  - Set objects requires hashable type.
-  
+
+# Bugs:
+
+- `bignum_tuple_to_pstr`: Conversion error: Occurred when `n` > 31 in `PauliElement`.
+
      
