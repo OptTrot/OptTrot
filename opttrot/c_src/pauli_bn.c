@@ -1,34 +1,5 @@
 #include "pauli_bn.h"
 
-// Module definition
-static PyModuleDef PauliModule = {
-    PyModuleDef_HEAD_INIT,
-    .m_name = "pauli_c",
-    .m_doc = "Pauli element manipulation core written in C.",
-    .m_size = -1
-};
-
-// Assign related method for the struct.
-//static PyTypeObject PauliElementType = 
-static PyTypeObject PauliElementType = {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name = "pauli.PauliElement",
-    .tp_doc = PyDoc_STR("Basic Pauli element"),
-    .tp_basicsize = sizeof(PauliElement),
-    .tp_itemsize = 0, // What is different with basicsize?
-    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-    .tp_new = PauliElement_new,
-    .tp_init = (initproc) PauliElement_init,
-    .tp_dealloc = (destructor) PauliElement_dealloc,
-    .tp_repr = (reprfunc)PauliElement_repr,
-    .tp_str = (reprfunc)PauliElement_str,
-    .tp_hash = (hashfunc)PauliElement_hash,
-    //.tp_memebers = PauliElement_members,
-    .tp_methods = PauliElement_methods,
-    .tp_getset = PauliElement_getsetters,
-    .tp_as_number = &PauliElement_nb_methods,
-    .tp_richcompare = (richcmpfunc)PauliElement_richcompare,
-};
 
 // Property, get, set methods
 /*
@@ -40,22 +11,25 @@ typedef struct {
     void *closure;             // optional additional data 
 } PyGetSetDef;
 */
+Py_complex PHASE[4] = {
+    {.real = 1.,.imag= 0.}, //0
+    {.real = 0.,.imag= -1.}, //1
+    {.real = -1.,.imag= 0.}, //2
+    {.real = 0.,.imag= 1.} //3
+};
+
 
 // Methods--------------------------------------
 // --Essential Methods------
-// ----Dealloc
-static void PauliElement_dealloc(PauliElement * self)
+void PauliElement_dealloc(PauliElement * self)
 {
-    // They are not allocated values, 
+    // There is no allocated values, 
     // We don't have to dealloc the variables.
     //Py_XDECREF(self->nx);
     //Py_XDECREF(self->nz);
     Py_TYPE(self)->tp_free((PyObject *) self);
 }
-
-// ----New
-static PyObject *
-PauliElement_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+PyObject * PauliElement_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     PauliElement *self;
     self = (PauliElement *) type->tp_alloc(type, 0);
@@ -72,11 +46,8 @@ PauliElement_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     }
     return NULL;
 }
-
-static PyObject * 
-_PauliElement_copy()
-static int PauliElement_init(PauliElement *self, PyObject *args, PyObject *kwds) {
-    static char *kwlist[] = {"nx", "nz", "n", "weight", NULL};
+int PauliElement_init(PauliElement *self, PyObject *args, PyObject *kwds) {
+     char *kwlist[] = {"nx", "nz", "n", "weight", NULL};
     PyObject *nx = NULL;
     PyObject *nz = NULL;
     unsigned int n = 1;
@@ -173,9 +144,29 @@ static int PauliElement_init(PauliElement *self, PyObject *args, PyObject *kwds)
     
     return 0;
 }
+// Utils function for manipulation.
+PyObject * _PauliElement_copy(PauliElement * self)
+{
+    PauliElement *new = (PauliElement *)PauliElement_new(&PauliElementType, NULL, NULL);
 
-// Internal methodss
-static PyObject *PauliElement_repr(PauliElement *self) {
+    if(new == NULL)
+    {
+        PyErr_SetString(PyExc_TypeError, "Failed to create new PauliElement object.");
+        return NULL;
+    }
+
+    bignum_assign(&(new->nx), &(self->nx)); 
+    bignum_assign(&(new->nz), &(self->nz));
+
+    new->n = self->n;
+    new->f = self->f;
+    new->weight.real = self->weight.real;
+    new->weight.imag = self->weight.imag;
+    return (PyObject*)new;
+}   
+
+// -Internal methods---------
+PyObject * PauliElement_repr(PauliElement *self) {
     char buff[8192];// Change it using length macros.
     memset(buff, '\0', sizeof(buff)); // Clear the array
     bignum_tuple_to_pstr(&self->nx, &self->nz, self->n, buff, sizeof(buff));
@@ -186,7 +177,7 @@ static PyObject *PauliElement_repr(PauliElement *self) {
     
     return PyUnicode_FromFormat("PauliElement(n=%d, weight=%U, %s)", self->n, wstr , buff);
 }
-static PyObject * PauliElement_str(PauliElement * self)
+PyObject * PauliElement_str(PauliElement * self)
 {
     char buff[8192];// Change it using length macros.
     memset(buff, '\0', sizeof(buff)); // Clear the array
@@ -194,7 +185,7 @@ static PyObject * PauliElement_str(PauliElement * self)
     
     return PyUnicode_FromFormat("%s", buff);
 }
-static Py_hash_t PauliElement_hash(PauliElement *self)
+Py_hash_t PauliElement_hash(PauliElement *self)
 {
     PyObject *tuple = PyTuple_Pack(2, _PyLong_FromBignum(&(self->nx)), _PyLong_FromBignum(&(self->nz)));
     if (!tuple) {return -1;}
@@ -202,9 +193,8 @@ static Py_hash_t PauliElement_hash(PauliElement *self)
     Py_DECREF(tuple);
     return hash;
 }
-//Comparsion
-
-static PyObject * PauliElement_richcompare(PauliElement *self, PauliElement *other, int op)
+// -Comparsion---------
+ PyObject * PauliElement_richcompare(PauliElement *self, PauliElement *other, int op)
 {
     if(!PyObject_TypeCheck(other, &PauliElementType))
     {
@@ -258,31 +248,41 @@ static PyObject * PauliElement_richcompare(PauliElement *self, PauliElement *oth
 
 }
 
-// Properties
-static PyObject *PauliElement_get_nx(PauliElement *self, void *closure) {
+// -Properties---------
+PyObject * PauliElement_get_nx(PauliElement *self, void *closure)
+{
     return _PyLong_FromBignum(&self->nx);
 }
-
-static PyObject *PauliElement_get_nz(PauliElement *self, void *closure) {
+PyObject * PauliElement_get_nz(PauliElement *self, void *closure)
+{
     return _PyLong_FromBignum(&self->nz);
 }
-
-static PyObject *PauliElement_get_n(PauliElement *self, void *closure) {
+PyObject * PauliElement_get_n(PauliElement *self, void *closure)
+{
     return PyLong_FromLong(self->n);
 }
-static PyObject *PauliElement_get_f(PauliElement *self, void *closure) {
+PyObject * PauliElement_get_f(PauliElement *self, void *closure)
+{
     return PyLong_FromLong(self->f);
 }
-static PyObject *PauliElement_get_weight(PauliElement *self, void *closure) {
+PyObject * PauliElement_get_weight(PauliElement *self, void *closure)
+{
     return PyComplex_FromCComplex(self->weight);
 }
-
-static PyObject * PauliElement_get_symplectic_code(PauliElement *self, void *closure)
+PyObject * PauliElement_get_pstr(PauliElement *self, void *closure)
+{
+    char buff[8192];// Change it using length macros.
+    memset(buff, '\0', sizeof(buff)); // Clear the array
+    size_t length = bignum_tuple_to_pstr(&self->nx, &self->nz, self->n, buff, sizeof(buff));
+    
+    //return PyUnicode_FromString(buff);
+    return PyUnicode_DecodeASCII(buff, length, "strict");
+}
+PyObject * PauliElement_get_symplectic_code(PauliElement *self, void *closure)
 {
     return PyTuple_Pack(2, _PyLong_FromBignum(&(self->nx)), _PyLong_FromBignum(&(self->nz)));
 }
-
-static PyObject * PauliElement_get_ij_code(PauliElement *self, void *closure)
+PyObject * PauliElement_get_ij_code(PauliElement *self, void *closure)
 {
     struct bn i, j;
     bignum_init(&i);
@@ -294,120 +294,8 @@ static PyObject * PauliElement_get_ij_code(PauliElement *self, void *closure)
     return PyTuple_Pack(2, _PyLong_FromBignum(&i), _PyLong_FromBignum(&j));
 }
 
-size_t bignum_tuple_to_pstr(
-    struct bn * nx, struct bn *nz, 
-    size_t qubits,
-    char * buff, size_t buff_size)
-    {
-        // Error qubits <=31 work well, but not for >32.
-
-    // Calculate access units
-    int bit_unit = sizeof(DTYPE) * 8;
-    int max_index_arr = (int)qubits/bit_unit;
-    int empty_str_len = qubits%bit_unit;
-
-    int j = 0, k=0;
-    int i=BN_ARRAY_SIZE-max_index_arr;
-    for(; i < BN_ARRAY_SIZE+1; i++)
-    {
-        j = BN_ARRAY_SIZE -i;
-        _ints_to_pstr(nx->array[j], nz->array[j], sizeof(DTYPE), buff+k*sizeof(DTYPE));
-        k++;
-    }
-
-    //int null_posiiton = (k)*bit_unit ;
-    //(buff+null_posiiton)[0] = '\0';
-
-    memmove(buff, buff + bit_unit - empty_str_len, qubits+1);
-    (buff+qubits)[0]= '\0';
-    size_t length = strlen(buff);
-    return length;
-}
-
-static PyObject *PauliElement_get_pstr(PauliElement *self, void *closure) {
-    char buff[8192];// Change it using length macros.
-    memset(buff, '\0', sizeof(buff)); // Clear the array
-    size_t length = bignum_tuple_to_pstr(&self->nx, &self->nz, self->n, buff, sizeof(buff));
-    
-    //return PyUnicode_FromString(buff);
-    return PyUnicode_DecodeASCII(buff, length, "strict");
-}
-
-
-
-//static PyObject *_PauliEleemnt_get_tuple(PauliElement *self, void *closure)
-//{
-//
-//}
-
-
 // --Numeric Methods--------
-
-// ----Add
-
-//static PyObject* PauliEleemnt_add
-// ----Mat mul
-
-// --Custom Methods--------
-
-// ----Kronecker Product(otimes)
-
-/* Initial implementation
-staitc PyObject *
-PauliElement_otimes(PauliElement * self, PauliElement *other)
-{
-    int output_dim = self->n + other->n;
-    if(output_dim  > BIG_NUM_BYTES)
-{
-        //Raise error
-    }
-    struct bn tmp1, tmp2;
-    struct bn new_x, new_z;
-
-    bignum_lshift(&self->x, &tmp1, &other->n);
-    bignum_lshift(&self->z, &tmp2, &other->n);
-
-    bignum_or(&tmp1, &other->x, &new_x);
-    bignum_or(&tmp2, &other->z, &new_z);
-
-}
-*/
-
-static PyObject *PauliElement_otimes(PauliElement *self, PauliElement *other) {
-    if (!PyObject_TypeCheck(other, &PauliElementType)) {
-        PyErr_SetString(PyExc_TypeError, "Expected a PauliElement object");
-        return NULL;
-    }
-
-    int output_dim = self->n + other->n;
-
-    if (output_dim > 8*BIG_NUM_BYTES) 
-    {
-        PyErr_SetString(PyExc_ValueError, "Resulting dimension exceeds the maximum allowed size");
-        return NULL;
-    }
-
-    PauliElement *result = (PauliElement *)PauliElement_new(&PauliElementType, NULL, NULL);
-    if (!result) {
-        return NULL;
-    }
-
-    bignum_lshift(&self->nx, &result->nx, other->n);
-    bignum_lshift(&self->nz, &result->nz, other->n);
-
-    bignum_xor(&self->nx, &other->nx, &result->nx);
-    bignum_xor(&self->nz, &other->nz, &result->nz);
-
-    result->n = self->n + other->n;
-    result->weight = _Py_c_prod(self->weight, other->weight);
-    result->f = (self->f + other->f)&3;//%4 <- Check it
-
-    return (PyObject *)result;
-}
-
-
-// Methods
-static PyObject * PauliElement_add(PauliElement *self, PauliElement *other)
+PyObject * PauliElement_add(PauliElement *self, PauliElement *other)
 {
     bool self_is_pauli = PyObject_TypeCheck(self, &PauliElementType);
     bool other_is_pauli = PyObject_TypeCheck(other, &PauliElementType);
@@ -416,20 +304,22 @@ static PyObject * PauliElement_add(PauliElement *self, PauliElement *other)
     {
         //PyErr_SetString(PyExc_TypeError, "Addition is not supported for PauliElement and diff element.");
         //return NULL;
-        return self;
+        return (PyObject *)_PauliElement_copy(self);
     }
 
     if(self->n != other->n)
     {
-        PyErr_SetString(PyExc_ValueError, "Addition is not supported for two different PauliElements.");
-        return NULL;
+        //PyErr_SetString(PyExc_ValueError, "Addition is not supported for two different PauliElements.");
+        //return NULL;
+        return (PyObject *)_PauliElement_copy(self);
     }
     bool same = bignum_eq(&self->nx, &other->nx) && bignum_eq(&self->nz, &other->nz);
 
     if(!same)
     {
-        PyErr_SetString(PyExc_ValueError, "Addition is not supported for two different PauliElements.");
-        return NULL;
+        //PyErr_SetString(PyExc_ValueError, "Addition is not supported for two different PauliElements.");
+        //return NULL;
+        return (PyObject *)_PauliElement_copy(self);
     }
     
     PauliElement *result = (PauliElement *)PauliElement_new(&PauliElementType, NULL, NULL);
@@ -451,7 +341,7 @@ static PyObject * PauliElement_add(PauliElement *self, PauliElement *other)
 
     return (PyObject *)result;
 }
-static PyObject * PauliElement_sub(PauliElement * self, PauliElement *other)
+PyObject * PauliElement_sub(PauliElement * self, PauliElement *other)
 {
     bool self_is_pauli = PyObject_TypeCheck(self, &PauliElementType);
     bool other_is_pauli = PyObject_TypeCheck(other, &PauliElementType);
@@ -487,9 +377,7 @@ static PyObject * PauliElement_sub(PauliElement * self, PauliElement *other)
 
     return (PyObject *)result;
 }
-
-
-static PyObject* PauliElement_mul(PyObject* left, PyObject * right)
+PyObject * PauliElement_mul(PyObject* left, PyObject * right)
 {
     // Check if `left` is an instance of PauliElement
     bool left_is_pauli = PyObject_TypeCheck(left, &PauliElementType);
@@ -541,8 +429,7 @@ static PyObject* PauliElement_mul(PyObject* left, PyObject * right)
     return (PyObject *)result;
 
 }
-
-static PyObject * PauliElement_mat_mul(PauliElement *self, PauliElement *other)
+PyObject * PauliElement_mat_mul(PauliElement *self, PauliElement *other)
 {
     if (self->n != other->n)
     {
@@ -586,9 +473,39 @@ static PyObject * PauliElement_mat_mul(PauliElement *self, PauliElement *other)
     return (PyObject *)result;//
 }
 
-// ----Commute
-static PyObject *
-PauliElement_commute(PauliElement * self, PauliElement * other)
+// --Custom Methods--------
+PyObject *PauliElement_otimes(PauliElement *self, PauliElement *other) {
+    if (!PyObject_TypeCheck(other, &PauliElementType)) {
+        PyErr_SetString(PyExc_TypeError, "Expected a PauliElement object");
+        return NULL;
+    }
+
+    int output_dim = self->n + other->n;
+
+    if (output_dim > 8*BIG_NUM_BYTES) 
+    {
+        PyErr_SetString(PyExc_ValueError, "Resulting dimension exceeds the maximum allowed size");
+        return NULL;
+    }
+
+    PauliElement *result = (PauliElement *)PauliElement_new(&PauliElementType, NULL, NULL);
+    if (!result) {
+        return NULL;
+    }
+
+    bignum_lshift(&self->nx, &result->nx, other->n);
+    bignum_lshift(&self->nz, &result->nz, other->n);
+
+    bignum_xor(&self->nx, &other->nx, &result->nx);
+    bignum_xor(&self->nz, &other->nz, &result->nz);
+
+    result->n = self->n + other->n;
+    result->weight = _Py_c_prod(self->weight, other->weight);
+    result->f = (self->f + other->f)&3;//%4 <- Check it
+
+    return (PyObject *)result;
+}
+PyObject * PauliElement_commute(PauliElement * self, PauliElement * other)
 {
     struct bn tmp1, tmp2;
     int i=0, j=0;
@@ -602,29 +519,7 @@ PauliElement_commute(PauliElement * self, PauliElement * other)
 {Py_RETURN_TRUE;}
     else{Py_RETURN_FALSE;}
 }
-//-----
-PyMODINIT_FUNC
-PyInit_pauli_c(void)
-{
-    PyObject *m;
-    if (PyType_Ready(&PauliElementType) < 0)
-        return NULL;
-
-    m = PyModule_Create(&PauliModule);
-    if (m == NULL)
-        return NULL;
-
-    if (PyModule_AddObjectRef(m, "PauliElement", (PyObject *) &PauliElementType) < 0) 
-    {
-        Py_DECREF(m);
-        return NULL;
-    }
-
-    return m;
-}
-
-
-static PyObject *PauliElement_exact_eq(PauliElement * self, PauliElement * other)
+PyObject *PauliElement_exact_eq(PauliElement * self, PauliElement * other)
 {
     if(!PyObject_TypeCheck(other, &PauliElementType))
     {
@@ -640,3 +535,86 @@ static PyObject *PauliElement_exact_eq(PauliElement * self, PauliElement * other
     
     Py_RETURN_TRUE;
 }
+
+//---------------------------------------
+PyGetSetDef PauliElement_getsetters[] = {
+    {"nx", (getter)PauliElement_get_nx, NULL, "x code", NULL},
+    {"nz", (getter)PauliElement_get_nz, NULL, "z code", NULL},
+    {"n", (getter)PauliElement_get_n, NULL, "qubits", NULL},
+    {"f", (getter)PauliElement_get_f, NULL, "Phase exponential factor, (-i)^f.", NULL},
+    {"weight", (getter)PauliElement_get_weight, NULL, "Weight", NULL},
+    {"pstr", (getter)PauliElement_get_pstr, NULL, "Pauli string", NULL},
+    {"sym_code", (getter)PauliElement_get_symplectic_code, NULL, "Symplectic representation of Pauli element.", NULL},
+    {"ij_code", (getter)PauliElement_get_ij_code, NULL, "Index of Pauli element in coefficient matrix.", NULL},
+    {NULL}  /* Sentinel */
+};
+PyMethodDef PauliElement_methods[] = {
+    {
+        "commute", 
+        (PyCFunction)PauliElement_commute, 
+        METH_O,
+        "Check the commutation relationship between two Pauli elements."
+    },
+    {
+        "otimes", 
+        (PyCFunction)PauliElement_otimes, 
+        METH_O,
+        "Compute the Kronecker product of two Pauli elements."
+    },
+    {
+        "exact_eq",
+        (PyCFunction)PauliElement_exact_eq,
+        METH_O,
+        "Exact comparsion of two Pauli elements, including phase, dim, and weight."
+    },
+    {NULL}  /* Sentinel */
+};
+PyNumberMethods PauliElement_nb_methods ={
+    .nb_add = (binaryfunc)PauliElement_add,
+    .nb_subtract = (binaryfunc)PauliElement_sub,
+    .nb_multiply = (binaryfunc)PauliElement_mul,
+    .nb_matrix_multiply = (binaryfunc)PauliElement_mat_mul,
+};
+
+PyTypeObject PauliElementType = 
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    .tp_name = "pauli.PauliElement",
+    .tp_doc = PyDoc_STR("Basic Pauli element"),
+    .tp_basicsize = sizeof(PauliElement),
+    .tp_itemsize = 0, // What is different with basicsize?
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_new = PauliElement_new,
+    .tp_init = (initproc) PauliElement_init,
+    .tp_dealloc = (destructor) PauliElement_dealloc,
+    .tp_repr = (reprfunc)PauliElement_repr,
+    .tp_str = (reprfunc)PauliElement_str,
+    .tp_hash = (hashfunc)PauliElement_hash,
+    //.tp_memebers = PauliElement_members,
+    .tp_methods = PauliElement_methods,
+    .tp_getset = PauliElement_getsetters,
+    .tp_as_number = &PauliElement_nb_methods,
+    .tp_richcompare = (richcmpfunc)PauliElement_richcompare,
+};
+//----- Moved to "pauli_c.h file".
+//PyMODINIT_FUNC
+//PyInit_pauli_c(void)
+//{
+//    PyObject *m;
+//    if (PyType_Ready(&PauliElementType) < 0)
+//        return NULL;
+//
+//    m = PyModule_Create(&PauliModule);
+//    if (m == NULL)
+//        return NULL;
+//
+//    if (PyModule_AddObjectRef(m, "PauliElement", (PyObject *) &PauliElementType) < 0) 
+//    {
+//        Py_DECREF(m);
+//        return NULL;
+//    }
+//
+//    return m;
+//}
+
+

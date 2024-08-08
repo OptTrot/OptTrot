@@ -1,5 +1,12 @@
+#ifndef __PAULI_BN__
+#define __PAULI_BN__
+
+#ifndef __Python_H__
+#define __Python_H__
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
+#endif
+
 #include <stdbool.h>
 #include <stddef.h>
 #include <math.h>
@@ -9,9 +16,11 @@
 #include "bn/bn_ext.h"
 #include "bn/bn_python.h"
 
+#include "pauli_bn_utils.h"
+
 
 typedef struct{
-    PyObject_HEAD
+   PyObject_HEAD
     /* Type-specific fields go here. */
     struct bn nx;
     struct bn nz;
@@ -20,133 +29,50 @@ typedef struct{
     Py_complex weight; // w * P
 } PauliElement;
 
-Py_complex PHASE[4] = {
-    {.real = 1.,.imag= 0.}, //0
-    {.real = 0.,.imag= -1.}, //1
-    {.real = -1.,.imag= 0.}, //2
-    {.real = 0.,.imag= 1.} //3
-};
+// --Essential Methods------
+void PauliElement_dealloc(PauliElement *self);
+PyObject* PauliElement_new(PyTypeObject *type,PyObject *args,PyObject *kwds);
+int PauliElement_init(PauliElement *self,PyObject *args,PyObject *kwds);
+// Utils function for manipulation.
+PyObject * _PauliElement_copy(PauliElement * self);
+// -Internal methods---------
+PyObject *PauliElement_repr(PauliElement *self);
+PyObject * PauliElement_str(PauliElement * self);
+Py_hash_t PauliElement_hash(PauliElement *self);
+// -Comparsion---------
+PyObject * PauliElement_richcompare(PauliElement *self, PauliElement *other, int op);
 
-static void PauliElement_dealloc(PauliElement *self);
-static PyObject* PauliElement_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
-static int PauliElement_init(PauliElement *self, PyObject *args, PyObject *kwds);
+// -Properties---------
+PyObject * PauliElement_get_nx(PauliElement *self, void *closure);
+PyObject * PauliElement_get_nz(PauliElement *self, void *closure);
+PyObject * PauliElement_get_n(PauliElement *self, void *closure);
+PyObject * PauliElement_get_f(PauliElement *self, void *closure);
+PyObject * PauliElement_get_weight(PauliElement *self, void *closure);
+PyObject * PauliElement_get_pstr(PauliElement *self, void *closure);
+PyObject * PauliElement_get_symplectic_code(PauliElement *self, void *closure);
+PyObject * PauliElement_get_ij_code(PauliElement *self, void *closure);
 
-// Internal methods
-static PyObject *PauliElement_repr(PauliElement *self);
-static PyObject * PauliElement_str(PauliElement * self);
-static Py_hash_t PauliElement_hash(PauliElement *self);
-//Comparsion
-static PyObject * PauliElement_richcompare(PauliElement *self, PauliElement *other, int op);
+// --Numeric Methods--------
+PyObject * PauliElement_add(PauliElement *self, PauliElement *other);
+PyObject * PauliElement_sub(PauliElement * self, PauliElement *other);
+PyObject* PauliElement_mul(PyObject* left,PyObject * right);
+PyObject * PauliElement_mat_mul(PauliElement *self, PauliElement *other);
 
-// Properties
-static PyObject *PauliElement_get_nx(PauliElement *self, void *closure);
-static PyObject *PauliElement_get_nz(PauliElement *self, void *closure);
-static PyObject *PauliElement_get_n(PauliElement *self, void *closure);
-static PyObject *PauliElement_get_f(PauliElement *self, void *closure);
-static PyObject *PauliElement_get_weight(PauliElement *self, void *closure);
-static PyObject *PauliElement_get_pstr(PauliElement *self, void *closure);
-static PyObject * PauliElement_get_symplectic_code(PauliElement *self, void *closure);
-static PyObject * PauliElement_get_ij_code(PauliElement *self, void *closure);
-
-//static PyObject *PauliElement_get_str(PauliElement *self, void *closure);
-//static PyObject *_PauliEleemnt_get_tuple(PauliElement *self, void *closure);
-
-// Methods
-static PyObject * PauliElement_add(PauliElement *self, PauliElement *other);
-static PyObject * PauliElement_sub(PauliElement * self, PauliElement *other);
-static PyObject* PauliElement_mul(PyObject* left, PyObject * right);
-static PyObject * PauliElement_mat_mul(PauliElement *self, PauliElement *other);
-
-// --- custom Methods
-static PyObject *PauliElement_otimes(PauliElement *self, PauliElement *other);
-static PyObject *PauliElement_commute(PauliElement * self, PauliElement * other);
-static PyObject *PauliElement_exact_eq(PauliElement * self, PauliElement * other);
-//static PyObject *PauliElement_to_matrix(PauliElement * self);
+// --Custom Methods--------
+PyObject *PauliElement_otimes(PauliElement *self, PauliElement *other);
+PyObject *PauliElement_commute(PauliElement * self, PauliElement * other);
+PyObject *PauliElement_exact_eq(PauliElement * self, PauliElement * other);
+//PyObject *PauliElement_to_matrix(PauliElement * self);
 
 
-//--------------------------------------------------------
-static PyGetSetDef PauliElement_getsetters[] = {
-    {"nx", (getter)PauliElement_get_nx, NULL, "x code", NULL},
-    {"nz", (getter)PauliElement_get_nz, NULL, "z code", NULL},
-    {"n", (getter)PauliElement_get_n, NULL, "qubits", NULL},
-    {"f", (getter)PauliElement_get_f, NULL, "Phase exponential factor, (-i)^f.", NULL},
-    {"weight", (getter)PauliElement_get_weight, NULL, "Weight", NULL},
-    {"pstr", (getter)PauliElement_get_pstr, NULL, "Pauli string", NULL},
-    {"sym_code", (getter)PauliElement_get_symplectic_code, NULL, "Symplectic representation of Pauli element.", NULL},
-    {"ij_code", (getter)PauliElement_get_ij_code, NULL, "Index of Pauli element in coefficient matrix.", NULL},
-    {"exact_eq", (getter)PauliElement_exact_eq, NULL, "Exact comparsion of two Pauli elements, including phase, dim, and weight.", NULL},
-    {NULL}  /* Sentinel */
-};
+//-Extern Methods----------
+extern Py_complex PHASE[4];
 
+extern PyGetSetDef PauliElement_getsetters[];
+extern PyMethodDef PauliElement_methods[];
+extern PyNumberMethods PauliElement_nb_methods;
 
-
-static PyMethodDef PauliElement_methods[] = {
-    {"commute", (PyCFunction)PauliElement_commute, METH_O,
-     "Check the commutation relationship between two Pauli elements."
-    },
-    {"otimes", (PyCFunction)PauliElement_otimes, METH_O,
-     "Compute the Kronecker product of two Pauli elements."
-    },
-    {NULL}  /* Sentinel */
-};
-
-
-static  PyNumberMethods PauliElement_nb_methods ={
-    .nb_add = (binaryfunc)PauliElement_add,
-    .nb_subtract = (binaryfunc)PauliElement_sub,
-    .nb_multiply = (binaryfunc)PauliElement_mul,
-    .nb_matrix_multiply = (binaryfunc)PauliElement_mat_mul,
-};
-
-// Utils function------------------------------------
-#define ASCII_I 73
-#define ASCII_X 88
-#define ASCII_Y 89
-#define ASCII_Z 90
-
-/* 
-Convert the x, z pauli code to  
-Pauli string in ASCII code.
-*/
-
-//char _xz_to_pstr(bool x, bool z){
-//    int i_term =  ASCII_I*((int)(!(x||z)));
-//    int x_term = 0, z_term = 0;
-//    int r = 0;
-//
-//    if(x)
-//    {
-//        x_term = ASCII_X; 
-//        z_term = ASCII_X;
-//        r++;
-//
-//    };
-//    if(z)
-//    {
-//        z_term =  ASCII_Z;
-//        r++;
-//    };
-//
-//    return (char)(i_term+((x_term+z_term)/r));
-//}
-char xz_to_pstr(bool x, bool z){
-    if (x||z){
-        if (x && z){return ASCII_Y;}
-        else if(x){return ASCII_X;}
-        else{return ASCII_Z;}
-    }
-    else{return ASCII_I;}
-}
-
-void _ints_to_pstr(DTYPE nx, DTYPE nz, size_t type_size, char * buff){
-    int bit_size = 8*type_size;
-    unsigned int mask = 1 << (bit_size- 1);
-
-    for(int i=0; i<bit_size; i++){
-        buff[i] = (char)xz_to_pstr((bool)(nx&mask), (bool)(nz&mask));
-        mask >>=1;
-    }
-    
-}
-
-size_t bignum_tuple_to_pstr(struct bn * nx, struct bn *nz, size_t qubits, char * buff, size_t buff_size);
+// Assign related method for the struct.
+//  PyTypeObject PauliElementType = 
+extern PyTypeObject PauliElementType;
+#endif 
