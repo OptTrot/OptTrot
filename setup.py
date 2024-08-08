@@ -10,7 +10,10 @@ def get_path(st:str):
 
 print(get_path(src_name))
 sources_list = [
+    f'{src_name}/c_src/pauli_c.c',
     f'{src_name}/c_src/pauli_bn.c',
+    f'{src_name}/c_src/pauli_bn_methods.c',
+    f'{src_name}/c_src/pauli_bn_utils.c',
     f'{src_name}/c_src/bn/bn.c',
     f'{src_name}/c_src/bn/bn_ext.c',
     f'{src_name}/c_src/bn/bn_python.c'

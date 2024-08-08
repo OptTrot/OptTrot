@@ -14,8 +14,11 @@ from opttrot.pauli_utils import (
     )
 
 class PauliPoly:
-    # np.array로 바꾸는 방법을 생각해보자.
-    # CSR representation이 사용 가능하다.
+    # Current: dict key as set
+    # Faster method: 
+    #   1. Numpy array as set: Simple, Scalable
+    #   2. CSR representation (Sparse matrix method) <--Um...
+    #       row, col, val array.
     # row, col, val
     # add: coef+val
     # mul: coef*val
@@ -39,16 +42,16 @@ class PauliPoly:
                 self._terms[p.sym_code] = p
 
         # Sparse
-        self.csrs = None
+        #self.csrs = None
         #self._terms = list(pauli_list)#set
         #self._terms.sort()
 
         #iteration routine
         self._iter_current = 0
     
-    def _update_weight(self):
-        # update Pauli term list 
-        pass
+    #def _update_weight(self):
+    #    # update Pauli term list 
+    #    pass
     @classmethod
     def from_coef_mat(cls, coef_mat:np.matrix, tol=FLT_EPS):
         n, m = coef_mat.shape
