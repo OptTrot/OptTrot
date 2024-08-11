@@ -55,13 +55,13 @@ PyObject * PauliElement_get_ij_code(PauliElement *self, void *closure);
 // --Numeric Methods--------
 PyObject * PauliElement_add(PauliElement *self, PauliElement *other);
 PyObject * PauliElement_sub(PauliElement * self, PauliElement *other);
-PyObject* PauliElement_mul(PyObject* left,PyObject * right);
+PyObject * PauliElement_mul(PyObject* left,PyObject * right);
 PyObject * PauliElement_mat_mul(PauliElement *self, PauliElement *other);
 
 // --Custom Methods--------
-PyObject *PauliElement_otimes(PauliElement *self, PauliElement *other);
-PyObject *PauliElement_commute(PauliElement * self, PauliElement * other);
-PyObject *PauliElement_exact_eq(PauliElement * self, PauliElement * other);
+PyObject * PauliElement_otimes(PauliElement *self, PauliElement *other);
+PyObject * PauliElement_commute(PauliElement * self, PauliElement * other);
+PyObject * PauliElement_exact_eq(PauliElement * self, PauliElement * other);
 //PyObject *PauliElement_to_matrix(PauliElement * self);
 
 
