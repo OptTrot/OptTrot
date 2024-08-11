@@ -1,0 +1,27 @@
+\begin{thebibliography}{1}
+
+\bibitem{Sperner1928NeuerBF}
+Emanuel Sperner.
+\newblock Neuer beweis f{\"u}r die invarianz der dimensionszahl und des gebietes.
+\newblock {\em Abhandlungen aus dem Mathematischen Seminar der Universit{\"a}t Hamburg}, 6:265--272, 1928.
+
+\bibitem{Huang2004ONTS}
+Jonathan Huang.
+\newblock On the sperner lemma and its applications.
+\newblock 2004.
+
+\bibitem{Wind_Wolf}
+Eric~W Weisstein.
+\newblock Contour winding number.
+
+\bibitem{9736615}
+Yong Xu, Gang Chen, Jie Chen, and Li~Qiu.
+\newblock Argument principle and integral relations: Hidden links and generalized forms.
+\newblock {\em IEEE Transactions on Automatic Control}, 68(3):1831--1838, 2023.
+
+\bibitem{10.1145/2699457}
+Piotr Kowalczyk.
+\newblock Complex root finding algorithm based on delaunay triangulation.
+\newblock {\em ACM Trans. Math. Softw.}, 41(3), jun 2015.
+
+\end{thebibliography}
