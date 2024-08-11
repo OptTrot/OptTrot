@@ -19,6 +19,7 @@
 #include "pauli_bn_utils.h"
 
 
+
 typedef struct{
    PyObject_HEAD
     /* Type-specific fields go here. */
