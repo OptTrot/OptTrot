@@ -4,6 +4,7 @@ from numbers import Number
 from copy import copy
 
 import numpy as np
+from numba import jit
 
 from opttrot.pauli_c import PauliElement
 from opttrot.pauli_utils import (
@@ -106,7 +107,63 @@ class PauliPoly:
         for p in self._terms.values(): # change from dict, key
             mat[*p.ij_code] = p.weight
         return mat
-    
+    # Matrix form
+    @staticmethod
+    @jit
+    def _matrix(mat):
+        #Tensrosized reconstruction method: O(8^n)
+        # Normal method: O(16^n)
+        # mat = np.zeros(self.coef_matrix.shape) 
+        # for p in self.poly:
+        #   mat += p.coef*p.matrix
+        #mat = self.coef_matrix
+
+        _2n = mat.shape[0] # 2^n
+        steps = int(np.log2(_2n)) #n
+        unit_size = 1
+
+        for step in range(steps):
+            step1 = step+1
+            mat_size = int(2*unit_size)
+            indexes = np.arange(int(_2n/(2**step1)))#np.arange(_2n/(2**step1)).astype(int)
+            indexes_ij = (mat_size * indexes)
+
+            for i in indexes_ij:
+                for j in indexes_ij:
+                    # (i, j)
+                    r1i     = i
+                    r1f2i   = r1i + unit_size
+                    r2f     = r1f2i + unit_size
+
+                    c1i     = j
+                    c1f2i   = c1i + unit_size
+                    c2f     = c1f2i + unit_size
+
+                    #print(r1i, r1f2i, r2f, c1i, c1f2i , c2f)
+                    # I - Z
+                    coef = 1
+                    mat[r1i: r1f2i, c1i:c1f2i] = mat[r1i: r1f2i, c1i:c1f2i] + coef*mat[r1f2i: r2f, c1f2i:c2f]
+                    mat[r1f2i: r2f, c1f2i:c2f] = mat[r1i: r1f2i, c1i:c1f2i] -2*coef *mat[r1f2i: r2f, c1f2i:c2f]
+                    # X -Y
+                    #coef = -1j
+                    #mat[r1f2i: r2f, c1i:c1f2i] = mat[r1f2i: r2f, c1i:c1f2i]  + coef*mat[r1i: r1f2i, c1f2i:c2f]
+                    #mat[r1i: r1f2i, c1f2i:c2f] = mat[r1f2i: r2f, c1i:c1f2i] -2*coef*mat[r1i: r1f2i, c1f2i:c2f]
+                    coef = -1j
+                    mat[r1i: r1f2i, c1f2i:c2f] = mat[r1i: r1f2i, c1f2i:c2f]  + coef*mat[r1f2i: r2f, c1i:c1f2i]
+                    mat[r1f2i: r2f, c1i:c1f2i] = mat[r1i: r1f2i, c1f2i:c2f] -2*coef*mat[r1f2i: r2f, c1i:c1f2i]
+            # Using slice to simplify the routine.
+            # I-Z
+            #mat[0:_2n:unit_size, 0:_2n:unit_size] += mat[unit_size:_2n:unit_size, unit_size:_2n:unit_size]
+            #mat[unit_size:_2n:unit_size, unit_size:_2n:unit_size] = mat[0:_2n:unit_size, 0:_2n:unit_size]-2*coef *mat[unit_size:_2n:unit_size, unit_size:_2n:unit_size]
+            # X-Y
+            #mat[0:_2n:unit_size, unit_size:_2n:unit_size] += (-1j)*mat[unit_size:_2n:unit_size, 0:_2n:unit_size]
+            #mat[unit_size:_2n:unit_size, 0:_2n:unit_size] = mat[0:_2n:unit_size, unit_size:_2n:unit_size]+2j*mat[unit_size:_2n:unit_size, 0:_2n:unit_size]
+            
+            unit_size *=2
+        return mat
+    @property
+    def matrix(self):
+        return self._matrix(self.coef_matrix)
     def __str__(self):
         return f"Pauli polynomial of {self.n} qubit space."
     def __repr__(self):
@@ -175,59 +232,6 @@ class PauliPoly:
         result = self._terms[self._iter_current]
         self._iter_current += 0 if self._iter_current == len(self._terms) else 1
         return result
-    # Matrix form
-    @property
-    def matrix(self):
-        #Tensrosized reconstruction method: O(8^n)
-        # Normal method: O(16^n)
-        # mat = np.zeros(self.coef_matrix.shape) 
-        # for p in self.poly:
-        #   mat += p.coef*p.matrix
-        mat = self.coef_matrix
-
-        _2n = self.coef_matrix.shape[0] # 2^n
-        steps = int(np.log2(_2n)) #n
-        unit_size = 1
-
-        for step in range(steps):
-            step1 = step+1
-            mat_size = int(2*unit_size)
-            indexes = np.arange(_2n/(2**step1)).astype(int)
-            indexes_ij = (mat_size * indexes)
-
-            for i in indexes_ij:
-                for j in indexes_ij:
-                    # (i, j)
-                    r1i     = i
-                    r1f2i   = r1i + unit_size
-                    r2f     = r1f2i + unit_size
-
-                    c1i     = j
-                    c1f2i   = c1i + unit_size
-                    c2f     = c1f2i + unit_size
-
-                    #print(r1i, r1f2i, r2f, c1i, c1f2i , c2f)
-                    # I - Z
-                    coef = 1
-                    mat[r1i: r1f2i, c1i:c1f2i] = mat[r1i: r1f2i, c1i:c1f2i] + coef*mat[r1f2i: r2f, c1f2i:c2f]
-                    mat[r1f2i: r2f, c1f2i:c2f] = mat[r1i: r1f2i, c1i:c1f2i] -2*coef *mat[r1f2i: r2f, c1f2i:c2f]
-                    # X -Y
-                    #coef = -1j
-                    #mat[r1f2i: r2f, c1i:c1f2i] = mat[r1f2i: r2f, c1i:c1f2i]  + coef*mat[r1i: r1f2i, c1f2i:c2f]
-                    #mat[r1i: r1f2i, c1f2i:c2f] = mat[r1f2i: r2f, c1i:c1f2i] -2*coef*mat[r1i: r1f2i, c1f2i:c2f]
-                    coef = -1j
-                    mat[r1i: r1f2i, c1f2i:c2f] = mat[r1i: r1f2i, c1f2i:c2f]  + coef*mat[r1f2i: r2f, c1i:c1f2i]
-                    mat[r1f2i: r2f, c1i:c1f2i] = mat[r1i: r1f2i, c1f2i:c2f] -2*coef*mat[r1f2i: r2f, c1i:c1f2i]
-            # Using slice to simplify the routine.
-            # I-Z
-            #mat[0:_2n:unit_size, 0:_2n:unit_size] += mat[unit_size:_2n:unit_size, unit_size:_2n:unit_size]
-            #mat[unit_size:_2n:unit_size, unit_size:_2n:unit_size] = mat[0:_2n:unit_size, 0:_2n:unit_size]-2*coef *mat[unit_size:_2n:unit_size, unit_size:_2n:unit_size]
-            # X-Y
-            #mat[0:_2n:unit_size, unit_size:_2n:unit_size] += (-1j)*mat[unit_size:_2n:unit_size, 0:_2n:unit_size]
-            #mat[unit_size:_2n:unit_size, 0:_2n:unit_size] = mat[0:_2n:unit_size, unit_size:_2n:unit_size]+2j*mat[unit_size:_2n:unit_size, 0:_2n:unit_size]
-            
-            unit_size *=2
-        return mat
     def add(self, p: Union[PauliElement, PauliPoly]):
         if isinstance(p, PauliElement): # Use in and & operator
             if p in self._terms.keys():
