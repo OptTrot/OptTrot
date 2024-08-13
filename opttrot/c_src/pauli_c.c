@@ -6,7 +6,9 @@
 //};
 
 PyMODINIT_FUNC PyInit_pauli_c(void)
-{
+{   
+    import_array();
+    _import_array();
     PyObject *m;
     if (PyType_Ready(&PauliElementType) < 0)
         return NULL;
@@ -20,6 +22,7 @@ PyMODINIT_FUNC PyInit_pauli_c(void)
         Py_DECREF(m);
         return NULL;
     }
+    
 
     return m;
 }

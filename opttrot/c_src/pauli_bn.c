@@ -47,7 +47,7 @@ PyObject * PauliElement_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     return NULL;
 }
 int PauliElement_init(PauliElement *self, PyObject *args, PyObject *kwds) {
-     char *kwlist[] = {"nx", "nz", "n", "weight", NULL};
+    char *kwlist[] = {"nx", "nz", "n", "weight", NULL};
     PyObject *nx = NULL;
     PyObject *nz = NULL;
     unsigned int n = 1;

@@ -1,5 +1,6 @@
 from setuptools import setup, Extension, find_packages
 from pathlib import Path
+import numpy
 
 sep_path = __file__.split("..")
 FILE_PATH = Path(sep_path[0]).parent
@@ -28,7 +29,7 @@ dirs_list = [
 pauli_module = Extension(
     'pauli_c',
     sources=[get_path(s) for s in sources_list],
-    include_dirs=[get_path(s) for s in dirs_list],  # Include directories for header files
+    include_dirs=[get_path(s) for s in dirs_list]+[numpy.get_include()],  # Include directories for header files
     define_macros=[("BIG_NUM_BYTES", "512")]
 )
 
@@ -42,8 +43,5 @@ setup(
     ext_modules=[pauli_module],
     py_modules=[
         'opttrot'
-        #'pauli',
-        #'pauli_utils',
-        #'utils'
     ]
 )

@@ -7,12 +7,16 @@ import numpy as np
 from numba import jit
 
 from opttrot.pauli_c import PauliElement
+from opttrot.pauli_c import _bignum_bytes
 from opttrot.pauli_utils import (
     FLT_EPS, ij_code2sym_code,
     pauli_to_pennylane,
     pauli_to_qiskit,
     pstr2sym_code,
     )
+
+#MAX_QUBITS = 
+
 
 class PauliPoly:
     # Current: dict key as set
