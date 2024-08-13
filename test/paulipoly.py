@@ -4,6 +4,7 @@ from numbers import Number
 from copy import copy
 
 import numpy as np
+from scipy.sparse import coo_matrix
 from numba import jit
 
 from opttrot.pauli_c import PauliElement
@@ -26,43 +27,53 @@ class PauliPoly:
 
     # Numpy routine
     def __init__(self, 
-                 pauli_list:Iterable[PauliElement], 
-                 coefs:Union[None, Iterable[Number]]=None
+                 paulis:Iterable[PauliElement]
                  ):
-        
+        self.n = paulis[0].n
+        self._terms = np.array(paulis)
+        #iteration routine
+        self._iter_current = 0
+    @classmethod
+    def from_iterables(cls, 
+                       pauli_list:Iterable[PauliElement], 
+                       coefs:Union[None, Iterable[Number]]=None):
         if isinstance(coefs, Iterable) and not isinstance(coefs, str):
             for (p, coef) in zip(pauli_list, coefs):
                 p.weight = coef
         pauli_list = np.array(sorted(pauli_list))
 
-        self.n = pauli_list[0].n
+        n = pauli_list[0].n
         terms = {}
         for i, p in enumerate(pauli_list):
-            if self.n != p.n:
+            if n != p.n:
                 raise ValueError(f"The dimension of {i} object does not match with first PauliElement object.")
             if p.sym_code in terms.keys():
                 terms[p.sym_code] = terms[p.sym_code]+ p
             else:
                 terms[p.sym_code] = p
-        self._terms = np.array(terms.values())
-
-        #iteration routine
-        self._iter_current = 0
-    
-    #def _update_weight(self):
-    #    # update Pauli term list 
-    #    pass
+        terms = np.array(list(terms.values()))
+        return cls(terms)
     @classmethod
     def from_coef_mat(cls, coef_mat:np.matrix, tol=FLT_EPS):
-        n, m = coef_mat.shape
-        qubits = int(np.log2(n))
-        p_list = []
-        it = np.nditer(coef_mat , flags=["multi_index"])
-        for p in it:
-            if np.abs(p) < tol:
-                continue
-            x, z = ij_code2sym_code(*it.multi_index)
-            p_list.append(PauliElement(nx=x, nz=z, n=qubits, weight=p.real))
+        sparse_mat = coo_matrix(coef_mat)
+        n = int(np.log2(coef_mat.shape[0]))
+        # ij to sym_code
+        i_s = np.bitwise_xor(sparse_mat.row,sparse_mat.col)
+        p_list = [
+            (PauliElement(nx=int(x), nz=int(z), n=n, weight=value)) # We have to fix original C code to remove int(*).
+            for x, z, value in zip(i_s, sparse_mat.row, sparse_mat.data)
+            if np.abs(value) >= tol
+        ]
+
+        #n, m = coef_mat.shape
+        #qubits = int(np.log2(n))
+        #p_list = []
+        #it = np.nditer(coef_mat , flags=["multi_index"])
+        #for p in it:
+        #    if np.abs(p) < tol:
+        #        continue
+        #    x, z = ij_code2sym_code(*it.multi_index)
+        #    p_list.append(PauliElement(nx=x, nz=z, n=qubits, weight=p.real))
         #for i in range(n):
         #    for j in range(m):
         #        if np.abs(coef_mat[i, j]) <tol: 
@@ -97,19 +108,19 @@ class PauliPoly:
         return cls.from_coef_mat(PauliPoly._matrix(mat), tol=tol)
     @property
     def terms(self):
-        return [(p.weight, p.pstr) for p in self._terms.values()] # convert to list and sort
+        return [(p.weight, p.pstr) for p in self._terms] # convert to list and sort
     @property
     def coefficients(self):
-        return [p.weight for p in self._terms.values()]
+        return [p.weight for p in self._terms]
     @property
     def poly(self):
-        return self._terms.values() # convert to list
+        return self._terms # convert to list
     @property
     def coef_matrix(self):
         n = self.n
         nn = 2**n
         mat = np.zeros((nn, nn), dtype=complex)
-        for p in self._terms.values(): # change from dict, key
+        for p in self._terms: # change from dict, key
             mat[*p.ij_code] = p.weight
         return mat
     # Matrix form
@@ -144,26 +155,14 @@ class PauliPoly:
                     c1f2i   = c1i + unit_size
                     c2f     = c1f2i + unit_size
 
-                    #print(r1i, r1f2i, r2f, c1i, c1f2i , c2f)
                     # I - Z
                     coef = 1
                     mat[r1i: r1f2i, c1i:c1f2i] = mat[r1i: r1f2i, c1i:c1f2i] + coef*mat[r1f2i: r2f, c1f2i:c2f]
                     mat[r1f2i: r2f, c1f2i:c2f] = mat[r1i: r1f2i, c1i:c1f2i] -2*coef *mat[r1f2i: r2f, c1f2i:c2f]
                     # X -Y
-                    #coef = -1j
-                    #mat[r1f2i: r2f, c1i:c1f2i] = mat[r1f2i: r2f, c1i:c1f2i]  + coef*mat[r1i: r1f2i, c1f2i:c2f]
-                    #mat[r1i: r1f2i, c1f2i:c2f] = mat[r1f2i: r2f, c1i:c1f2i] -2*coef*mat[r1i: r1f2i, c1f2i:c2f]
                     coef = -1j
                     mat[r1i: r1f2i, c1f2i:c2f] = mat[r1i: r1f2i, c1f2i:c2f]  + coef*mat[r1f2i: r2f, c1i:c1f2i]
                     mat[r1f2i: r2f, c1i:c1f2i] = mat[r1i: r1f2i, c1f2i:c2f] -2*coef*mat[r1f2i: r2f, c1i:c1f2i]
-            # Using slice to simplify the routine.
-            # I-Z
-            #mat[0:_2n:unit_size, 0:_2n:unit_size] += mat[unit_size:_2n:unit_size, unit_size:_2n:unit_size]
-            #mat[unit_size:_2n:unit_size, unit_size:_2n:unit_size] = mat[0:_2n:unit_size, 0:_2n:unit_size]-2*coef *mat[unit_size:_2n:unit_size, unit_size:_2n:unit_size]
-            # X-Y
-            #mat[0:_2n:unit_size, unit_size:_2n:unit_size] += (-1j)*mat[unit_size:_2n:unit_size, 0:_2n:unit_size]
-            #mat[unit_size:_2n:unit_size, 0:_2n:unit_size] = mat[0:_2n:unit_size, unit_size:_2n:unit_size]+2j*mat[unit_size:_2n:unit_size, 0:_2n:unit_size]
-            
             unit_size *=2
         return mat
     @property
@@ -177,23 +176,24 @@ class PauliPoly:
         return st + st_term+"\n]"
 
     def __rmul__(self, other:Number):
-        ps = list(self._terms.values())
-        for i in range(len(ps)):
-            ps[i] = other * ps[i]
-        #for k in self._terms.keys(): #convert to dict routine
-        #    self._terms[k]= other * self._terms[k]
-        
-        return PauliPoly(ps)
+        return PauliPoly(other*self._terms)
     def __add__(self, other: Union[PauliElement, PauliPoly]):
+        # coef matrix method
         if isinstance(other, PauliElement): # Use in and & operator
             p = PauliPoly([other])
         else:
             p = other
-        self._terms.keys()
         
-        # if len(terms) > tolerance # using a matrix method.
-        mat = self.coef_matrix + p.coef_matrix
-        return PauliPoly.from_coef_mat(mat)
+        if len(self._terms) > 0.4*(4**self.n): # Make a solid tolerance here. 
+           # Matrix method.
+           mat = self.coef_matrix + p.coef_matrix
+           return PauliPoly.from_coef_mat(mat)
+        # Manual method.
+        #common_1 = np.intersect1d(self._terms, other._terms)
+        #common_2 = np.intersect1d(other._terms, self._terms)
+        #common = common_1 + common_2
+        #sep = np.setxor1d(self._terms, other._terms)
+        #return PauliPoly(np.sort(np.concatenate([common, sep])))
     
     def __matmul__(self, other:PauliPoly):
         n = self.n
@@ -239,10 +239,10 @@ class PauliPoly:
         return result
     def add(self, p: Union[PauliElement, PauliPoly]):
         if isinstance(p, PauliElement): # Use in and & operator
-            if p in self._terms.keys():
-                self._terms[p.sym_code] = self._terms[p.sym_code] + p
+            if np.isin(self._terms, p, assume_unique=True, kind='sort'):
+                self._terms = self._terms + p
             else:
-                self._terms[p.sym_code] = p
+                self._terms =  np.sort(np.concatenate(self._terms, np.array([p])))
         if isinstance(p, PauliPoly):
             # Intersection
             for p_t in (self._terms.keys()&p._terms.keys()):
