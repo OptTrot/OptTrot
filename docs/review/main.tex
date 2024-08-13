@@ -68,15 +68,16 @@
 %    {\scshape \courseName \par}
 %    {Final Assignment \par}
 %    \vspace{0.5cm}
+
+    \vspace{0.5cm}
     {\Large\bfseries \assignmentTitle \par}
     {\large Optimized Trotterized circuit library \par}
     \vspace{1cm}
-    \vspace{0.5cm}
     {
     \noindent
     \begin{minipage}{0.45\textwidth}
         \centering
-        Memebers
+        \textbf{Memebers}
 
         Hyunseong Kim
 
@@ -86,6 +87,7 @@
     \end{minipage}
     \begin{minipage}{0.45\textwidth}
         \centering
+        \textbf{Mentor}
 
         Sayomeo Ray
     \end{minipage}
@@ -94,6 +96,9 @@
 %    {Student ID: \studentID \par}
 %    \vspace{0.5cm}
 %    {\large \today \par}
+    \begin{abstract}
+    Abstract
+    \end{abstract}
 \end{center}
 
 
@@ -102,51 +107,30 @@
 
 \section{Introduction}
 
-Trotterization is 
+Trotterization is a standard method used to implement a time evolution operator 
+by combining several local Hamiltonian evolution operators.
+In quantum computing, the method has an advantange of preserving the local structure of 
+the Hamiltonian on a dynamic circuit \cite{childs_theory_2021}.
+However, Trotterization method increases circuit depth with linear order.
+If the time evolution was an ultimate goal to achieve in quantum circuit, 
+it could be meaningful, but in the most algorithms and applications, time evolution 
+is just a part of the whole process. 
+In these cases, the increased circuit depth can lead to a loss of precision, making the algorithm less practical.
+By the limitation, there are many alternative methods to implement a time evolution operator 
+with shorter depth circit than Trotterization, such as 
+linear combination of unitary(LCU) method\cite{dewolf2023quantumcomputinglecturenotes}, Qubitization\cite{Low_2019}, 
+Taylorization\cite{PhysRevLett.114.090502}, and Fractional query\cite{Berry_2014}.
+Such methods make the evolution circuit more practical, however, they loose 
+identity of the given system, especially the cases, when the given hamiltonian is nearly commute
+or local observable was a dominant feature\cite{childs_theory_2021}. 
 
-In combinatorics, Sperner's lemma is about 
-a specific coloring result of triangulation, Sperner coloring. 
-It was published in 1928 by Emanuel Sperner\cite{Sperner1928NeuerBF},
-and there have been various studies and applications.
-Since, by choosing a proper coloring function and triangulation space, 
-we can adopt the lemma in various fields, and it yields many non-trivial results. 
-For example using the lemma, we can prove well-known 
-equivalent theorems in algebraic topology and set theory\footnote{
-    These are \textit{Brouwer fixed point theorem}, and \textit{KKM theorem}.}.
-However, the lemma has lot of potential not only for the theoretical results, 
-but also for a practical computational aspect.
 
-\vspace{0.5cm}
-{
-\noindent
-\begin{minipage}{0.45\textwidth} % Adjust the width to fit your document
-    \noindent
-In this assignment, focusing on computational method,
-we overlook an application of Sperner's lemma in root finding method 
-on complex plane. 
-In the right Fig (\ref{fig:schematic_roots}), 
-we can see a basic process of the algorithm. 
-When 3 colors guarantees the existence of roots
-inside the triangle. We can make a finer sub-triangles
-to converges the root. Even we reduce the triangle arbitrary size,
-by the lemma there always exists a rainbow triangle containing a root.
-More precisely, using the lemma, we can simply prove 
-Fundamental Theorem of Algebra(FTA)\cite{Huang2004ONTS}.
-In addition, we can find such roots for the given polynomial, using a same process
-of the proof.
-\end{minipage}%
-\hfill % Optional space between the text and figure
-%\begin{minipage}{0.45\textwidth}
-%    \centering
-%    \label{fig:schematic_roots}
-%        \includegraphics[width=0.75\textwidth]{d_triangular.jpeg}
-%        \captionof{figure}{
-%            Schematic of root finding steps using Sperner's lemma. 
-%            Orange line is a path narrowing root region of the given function, $f$. 
-%            The circle is a disk $D$ on complex plane.
-%        }        
-%\end{minipage}
-}
+\section{Optimizing a circuit with commuting pairs}
+
+\section{Pauli Frame method}
+
+\section{}
+
 \section{Terminology and basic theorems}
 
 Let $S$ be $n$-simplex determined by $n+1$ number of vertices, $\{v_i\}_{i=1}^{n+1}$ in $\mathbb{R}^n$.

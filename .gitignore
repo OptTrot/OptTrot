@@ -6,7 +6,6 @@
 *.exp
 *.lib
 *.gz
-
 *.aux
 *.bbl
 *.blg
@@ -15,4 +14,3 @@
 *.out
 *.gz
 *.so
-
