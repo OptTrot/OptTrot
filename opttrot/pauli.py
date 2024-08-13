@@ -57,6 +57,8 @@ class PauliPoly:
     def from_coef_mat(cls, coef_mat:np.matrix, tol=FLT_EPS):
         n, m = coef_mat.shape
         qubits = int(np.log2(n))
+
+        row_i, col_j = np.nonzero(coef_mat>FLT_EPS)
         p_list = []
         for i in range(n):
             for j in range(m):
@@ -69,27 +71,26 @@ class PauliPoly:
     def from_matrix(cls, H:np.matrix, tol=FLT_EPS):
         # Tensorized decomposition See Hantzko et al, 2023.
         mat = copy(H)
-        n1, n2 = mat.shape
-        assert n1 == n2, "The given matrix must be a square matrix."
-        n= int(np.log2(n1))
-        l = n1
-        for i in range(n):
-            m = int(2**i) # Number of submatrix
-            l = int(l/2) # Sub matrix size, square
-            for j in range(m):
-                for k in range(m):
-                    num_i = j*(2*l) # Initial position of sub matrix row
-                    num_j = k*(2*l) # Initial position of sub matrix column
-                    # I-Z
-                    mat[num_i: num_i+l, num_j:num_j+l]        += mat[num_i+l: num_i+2*l, num_j+l:num_j+2*l] 
-                    mat[num_i+l: num_i+2*l, num_j+l:num_j+2*l] = mat[num_i: num_i+l, num_j:num_j+l] - 2*mat[num_i+l: num_i+2*l, num_j+l:num_j+2*l]
-                    # X-Y
-                    mat[num_i: num_i+l, num_j+l:num_j+2*l] += mat[num_i+l: num_i+2*l, num_j:num_j+l] 
-                    mat[num_i+l: num_i+2*l, num_j:num_j+l] =  mat[num_i: num_i+l, num_j+l:num_j+2*l] - 2*mat[num_i+l: num_i+2*l, num_j:num_j+l]
-                    mat[num_i+l: num_i+2*l, num_j:num_j+l] *= 1j # 1j 이 맞는 거 같은데
-
-        mat *= (1/(2**n))
-        return cls.from_coef_mat(mat, tol=tol)
+        #n1, n2 = mat.shape
+        #assert n1 == n2, "The given matrix must be a square matrix."
+        #n= int(np.log2(n1))
+        #l = n1
+        #for i in range(n):
+        #    m = int(2**i) # Number of submatrix
+        #    l = int(l/2) # Sub matrix size, square
+        #    for j in range(m):
+        #        for k in range(m):
+        #            num_i = j*(2*l) # Initial position of sub matrix row
+        #            num_j = k*(2*l) # Initial position of sub matrix column
+        #            # I-Z
+        #            mat[num_i: num_i+l, num_j:num_j+l]        += mat[num_i+l: num_i+2*l, num_j+l:num_j+2*l] 
+        #            mat[num_i+l: num_i+2*l, num_j+l:num_j+2*l] = mat[num_i: num_i+l, num_j:num_j+l] - 2*mat[num_i+l: num_i+2*l, num_j+l:num_j+2*l]
+        #            # X-Y
+        #            mat[num_i: num_i+l, num_j+l:num_j+2*l] += mat[num_i+l: num_i+2*l, num_j:num_j+l] 
+        #            mat[num_i+l: num_i+2*l, num_j:num_j+l] =  mat[num_i: num_i+l, num_j+l:num_j+2*l] - 2*mat[num_i+l: num_i+2*l, num_j:num_j+l]
+        #            mat[num_i+l: num_i+2*l, num_j:num_j+l] *= 1j # 1j 이 맞는 거 같은데
+        #mat *= (1/(2**n))
+        return cls.from_coef_mat(PauliPoly._matrix(mat), tol=tol)
     @property
     def terms(self):
         return [(p.weight, p.pstr) for p in self._terms.values()] # convert to list and sort
@@ -111,7 +112,7 @@ class PauliPoly:
     @staticmethod
     @jit
     def _matrix(mat):
-        #Tensrosized reconstruction method: O(8^n)
+        # Tensrosized reconstruction method: O(8^n)
         # Normal method: O(16^n)
         # mat = np.zeros(self.coef_matrix.shape) 
         # for p in self.poly:
