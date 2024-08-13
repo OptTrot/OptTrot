@@ -5,10 +5,29 @@ Old: below
 
 # Implementation
 
+- PauliElement list construction in C.
 
-- Hashable type:
+- Accelerate Tensorized Decomposition method
+  - Current: Python + JIT method.
+  - We have to change the module as AOT compile method.
+  - See Numba AOT: https://numba.pydata.org/numba-doc/dev/user/pycc.html
+
+- PauliPoly strucutre design
+  - Current structure: Naive list method ( Too slow ).
+  - Methods 
+    - (1): Sparse Representation(SR, CSR): Using ij code as matrix index.
+      - Pros: Less memory usage. Addition and scalar multiplication are simple.
+      - Cons: Pauli Algebra implementation is not easy to get speed advantage comparing to C-api.
+    - (2): Numpy object array: 
+      - Pros: Easy to implement, just wrapping PauliElements as array, and addtion and Pauli multiplication are well defined.
+      - Cons: Addition and matrix multiplication between two PauliPoly object are not simple.
+
+
+- Hashable type(Done):
   - We want to implement the PauliPoly as set objects or other container.
-  - Set object requires hashable type. - Done.
+  - Set object requires hashable type.
+  - PauliElement must be a hashable object.
+
   
 
 - HEAP type implementation(Meaningless):
@@ -17,7 +36,7 @@ Old: below
     Unfortunately, static implementations are immutable.
     We have to implement the class with heap element.
 
-    => Heap types are too slow comparing to static object.
+    => Heap types are **too slow** comparing to static object.
     Remain the routines as static object and expending with separated routines.
 
 

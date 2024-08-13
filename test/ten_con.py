@@ -1,8 +1,13 @@
 from numba import jit
+from numba.pycc import CC
+from numba import complex64, float64, int64
+from numba.core.types.npytypes import Array
+
 import numpy as np 
 from typing import Tuple
 
-
+#cc = CC('ten_con')
+#@cc.export('_mat_coef_mat', '')
 @jit
 def _mat_to_coef_mat(H:np.matrix):
         """Tensorized decomposition of hermit matrix into pauli terms.
