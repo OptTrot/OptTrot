@@ -5,3 +5,14 @@
 *.obj
 *.exp
 *.lib
+*.gz
+
+*.aux
+*.bbl
+*.blg
+*.fls
+*.log
+*.out
+*.gz
+*.so
+
