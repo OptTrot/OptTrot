@@ -27,7 +27,7 @@ It is convenience and scalable but, still needs conversions from bit string-inte
 However, in integer representation, bit and integer conversion is very natural in C.
 
 In here, we used portable arbitrary integer library, [tiny-bignum](https://github.com/kokke/tiny-bignum-c) with additional 
-extension routines, see [bn_ext]](https://github.com/HYUNSEONG-KIM/big_num_ext).
+extension routines, see [bn_ext](https://github.com/HYUNSEONG-KIM/big_num_ext).
 You can set a arbitrary qubit numbers up to 8,589,934,588 number of qubits by set a value during the installation, (defaul=1024).
 
 ### Speed issue
