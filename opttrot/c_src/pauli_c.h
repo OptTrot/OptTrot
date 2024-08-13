@@ -5,6 +5,7 @@
 #endif
 
 #include "pauli_bn.h"
+#include "pauli_bn_methods.h"
 
 PyObject * _bignum_bytes(void){return (PyObject *)PyLong_FromLong(BIG_NUM_BYTES);};
 //
@@ -14,6 +15,12 @@ static PyMethodDef PauliMethods[]={
         .ml_name = "_bignum_bytes", 
         .ml_meth = _bignum_bytes, 
         .ml_flags = METH_NOARGS, 
+        .ml_doc = NULL
+    },
+    {
+        .ml_name = "test_mat", 
+        .ml_meth = (PyCFunction)get_PauliList_FromCoefs, 
+        .ml_flags = METH_O, 
         .ml_doc = NULL
     },
     {NULL, NULL, 0, NULL}
