@@ -1,4 +1,5 @@
 #include "pauli_c.h"
+#include "numpy/ndarrayobject.h"
 
 //static PyMethodDef PauliMethods[]={
 //    // {"Python func name", "C function name", "Arg methods", "Docs"}
@@ -7,8 +8,10 @@
 
 PyMODINIT_FUNC PyInit_pauli_c(void)
 {   
-    import_array();
-    _import_array();
+    import_array()
+    //if (PyArray_ImportNumPyAPI() < 0) {
+    //    return NULL;
+    //}
     PyObject *m;
     if (PyType_Ready(&PauliElementType) < 0)
         return NULL;

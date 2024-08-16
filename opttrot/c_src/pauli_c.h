@@ -4,6 +4,9 @@
 #include <Python.h>
 #endif
 
+#ifndef __Pauli_C_H__
+#define __Pauli_C_H__
+
 #include "pauli_bn.h"
 #include "pauli_bn_methods.h"
 
@@ -19,8 +22,8 @@ static PyMethodDef PauliMethods[]={
     },
     {
         .ml_name = "test_mat", 
-        .ml_meth = (PyCFunction)get_PauliList_FromCoefs, 
-        .ml_flags = METH_O, 
+        .ml_meth = get_PauliList_FromCoefs, 
+        .ml_flags = METH_VARARGS, 
         .ml_doc = NULL
     },
     {NULL, NULL, 0, NULL}
@@ -37,3 +40,5 @@ PyModuleDef PauliModule = {
 };
 
 PyMODINIT_FUNC PyInit_pauli_c(void);
+
+#endif

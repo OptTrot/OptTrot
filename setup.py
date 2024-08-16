@@ -22,14 +22,15 @@ sources_list = [
 dirs_list = [
     f'{src_name}',
     f'{src_name}/c_src',
-    f'{src_name}/c_src/bn'
+    f'{src_name}/c_src/bn',
+    numpy.get_include()
 ]
 
 # Define the extension module
 pauli_module = Extension(
     'pauli_c',
     sources=[get_path(s) for s in sources_list],
-    include_dirs=[get_path(s) for s in dirs_list]+[numpy.get_include()],  # Include directories for header files
+    include_dirs=[get_path(s) for s in dirs_list],  # Include directories for header files
     define_macros=[("BIG_NUM_BYTES", "512")]
 )
 
