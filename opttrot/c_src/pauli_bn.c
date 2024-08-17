@@ -46,6 +46,7 @@ PyObject * PauliElement_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     }
     return NULL;
 }
+
 int PauliElement_init(PauliElement *self, PyObject *args, PyObject *kwds) {
     char *kwlist[] = {"nx", "nz", "n", "weight", NULL};
     PyObject *nx = NULL;
@@ -61,7 +62,7 @@ int PauliElement_init(PauliElement *self, PyObject *args, PyObject *kwds) {
         if(!PyArg_ParseTupleAndKeywords(args, kwds, "|OOId", kwlist, &nx, &nz, &n, &r_weight))
         {
             PyErr_SetString(PyExc_TypeError, "Failed to parse arguments");
-            return -1;
+            return NULL;
         }
         else{weight_r=true;}
     }
@@ -69,11 +70,11 @@ int PauliElement_init(PauliElement *self, PyObject *args, PyObject *kwds) {
 
     if (nx == NULL || !PyLong_Check(nx)) {
         PyErr_SetString(PyExc_TypeError, "nx must be an integer");
-        return -1;
+        return NULL;
     }
     if (nz == NULL || !PyLong_Check(nz)) {
         PyErr_SetString(PyExc_TypeError, "nz must be an integer");
-        return -1;
+        return NULL;
     }
     
     switch(PyObject_RichCompareBool(nx, PyLong_FromLong(0), Py_GE))
@@ -81,24 +82,24 @@ int PauliElement_init(PauliElement *self, PyObject *args, PyObject *kwds) {
         // 0:Flase, -1: error, 1 otherwise
         case 0:
             PyErr_SetString(PyExc_ValueError, "nx must be a positive integer.");
-            return -1;
+            return NULL;
         case -1:
             PyErr_SetString(PyExc_ValueError, "nx yields problem.");
-            return -1;
+            return NULL;
     }
     switch(PyObject_RichCompareBool(nz, PyLong_FromLong(0), Py_GE))
 {
         case 0:
             PyErr_SetString(PyExc_ValueError, "nz must be a positive integer.");
-            return -1;
+            return NULL;
         case -1:
             PyErr_SetString(PyExc_ValueError, "nz yields problem.");
-            return -1;
+            return NULL;
     }
     if(n<=0)
     {
         PyErr_SetString(PyExc_ValueError, "n must be greater than 0.");
-        return -1;
+        return NULL;
     }
 
     // Qubit and code verification.
@@ -116,12 +117,12 @@ int PauliElement_init(PauliElement *self, PyObject *args, PyObject *kwds) {
     if(bignum_ge(&self->nx, &bn_max_n))
     {   
         PyErr_SetString(PyExc_ValueError, "nx must be smaller than 2^n");
-        return -1;
+        return NULL;
     }
     if(bignum_ge(&self->nz, &bn_max_n))
     {
         PyErr_SetString(PyExc_ValueError, "nz must be smaller than 2^n");
-        return -1;
+        return NULL;
     }
 
     self->n = n;
@@ -188,7 +189,7 @@ PyObject * PauliElement_str(PauliElement * self)
 Py_hash_t PauliElement_hash(PauliElement *self)
 {
     PyObject *tuple = PyTuple_Pack(2, _PyLong_FromBignum(&(self->nx)), _PyLong_FromBignum(&(self->nz)));
-    if (!tuple) {return -1;}
+    if (!tuple) {return NULL;}
     Py_hash_t hash = PyObject_Hash(tuple);
     Py_DECREF(tuple);
     return hash;
@@ -384,10 +385,10 @@ PyObject * PauliElement_mul(PyObject* left, PyObject * right)
     bool right_is_pauli = PyObject_TypeCheck(right, &PauliElementType);
 
 
-    if (left_is_pauli&& right_is_pauli)
+    if (left_is_pauli&&right_is_pauli)
     {
-        PyErr_SetString(PyExc_TypeError, "Multiplication between two Pauli elements instances is not supported. Use @ for Pauli algebra.");
-        return NULL;
+        //PyErr_SetString(PyExc_TypeError, "Multiplication between two Pauli elements instances is not supported. Use @ for Pauli algebra.");
+        return PauliElement_mat_mul(left, right);
     }
 
     PyObject * num_object = (left_is_pauli? right : left);
@@ -535,6 +536,23 @@ PyObject *PauliElement_exact_eq(PauliElement * self, PauliElement * other)
     
     Py_RETURN_TRUE;
 }
+
+PyObject * Get_PauliElement(struct bn * nx, struct bn * nz, unsigned int n, double real, double imag)
+{
+    PauliElement * pauli_element = (PauliElement *)PauliElement_new(&PauliElementType, NULL, NULL);
+    
+    bignum_assign(&(pauli_element->nx), nx); 
+    bignum_assign(&(pauli_element->nz), nz);
+
+    pauli_element->n = n;
+    struct bn tmp;
+    bignum_and(&(pauli_element->nx), &(pauli_element->nz), &tmp);
+    pauli_element->f = bignum_bit_count(&tmp)&3;//%4;
+    pauli_element->weight.real = real;
+    pauli_element->weight.imag = imag;
+
+    return pauli_element;
+} 
 
 //---------------------------------------
 PyGetSetDef PauliElement_getsetters[] = {

@@ -65,6 +65,8 @@ PyObject * PauliElement_commute(PauliElement * self, PauliElement * other);
 PyObject * PauliElement_exact_eq(PauliElement * self, PauliElement * other);
 //PyObject *PauliElement_to_matrix(PauliElement * self);
 
+// --Utils-----------------
+PyObject * Get_PauliElement(struct bn * nx, struct bn * nz, unsigned int n, double real, double imag);
 
 //-Extern Methods----------
 extern Py_complex PHASE[4];

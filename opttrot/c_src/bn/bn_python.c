@@ -12,7 +12,7 @@ _PyLong_FromBignum(const struct bn *bignum_obj) {
 }
 
 // Function to convert PyLongObject to bignum
-int _Bignum_FromPyLong(PyObject *obj, struct bn * bignum_obj) {
+int _Bignum_FromPyLong(PyObject * obj, struct bn * bignum_obj) {
     if (!PyLong_Check(obj)) {
         PyErr_SetString(PyExc_TypeError, "Expected a PyLongObject");
         return -1;
