@@ -3,6 +3,7 @@ from itertools import product
 from functools import reduce
 
 import numpy as np
+from numba import jit
 
 from .pauli_c import PauliElement
 from .utils import krons
@@ -96,6 +97,78 @@ def get_pauli_fam_terms(n, fam="Z"):
 def get_pauli_fam_mat(n, fam="Z"):
         return list(map(krons, product([I, PAULI_MATRICES[fam]], repeat=int(n))))
 
+@jit
+def mat_decompose(mat):
+    #Tensrosized reconstruction method: O(8^n)
+    # Normal method: O(16^n)
+    # mat = np.zeros(self.coef_matrix.shape) 
+    # for p in self.poly:
+    #   mat += p.coef*p.matrix
+    #mat = self.coef_matrix
+
+    _2n = mat.shape[0] # 2^n
+    steps = int(np.log2(_2n)) #n
+    unit_size = 1
+
+    for step in range(steps):
+        step1 = step+1
+        mat_size = int(2*unit_size)
+        indexes = np.arange(int(_2n/(2**step1)))#np.arange(_2n/(2**step1)).astype(int)
+        indexes_ij = (mat_size * indexes)
+
+        for i in indexes_ij:
+            for j in indexes_ij:
+                # (i, j)
+                r1i     = i
+                r1f2i   = r1i + unit_size
+                r2f     = r1f2i + unit_size
+
+                c1i     = j
+                c1f2i   = c1i + unit_size
+                c2f     = c1f2i + unit_size
+
+                # I - Z
+                coef = 1
+                mat[r1i: r1f2i, c1i:c1f2i] = mat[r1i: r1f2i, c1i:c1f2i] + coef*mat[r1f2i: r2f, c1f2i:c2f]
+                mat[r1f2i: r2f, c1f2i:c2f] = mat[r1i: r1f2i, c1i:c1f2i] -2*coef *mat[r1f2i: r2f, c1f2i:c2f]
+                # X -Y
+                coef = -1j
+                mat[r1i: r1f2i, c1f2i:c2f] = mat[r1i: r1f2i, c1f2i:c2f]  + coef*mat[r1f2i: r2f, c1i:c1f2i]
+                mat[r1f2i: r2f, c1i:c1f2i] = mat[r1i: r1f2i, c1f2i:c2f] -2*coef*mat[r1f2i: r2f, c1i:c1f2i]
+        unit_size *=2
+    return mat
+@jit
+def mat_compose(coef_matrix:np.matrix):
+    mat = coef_matrix
+    _2n = mat.shape[0] # 2^n
+    steps = int(np.log2(_2n))# n
+    unit_size= 1
+ 
+    for step in range(steps):
+        step1 = step+1
+        mat_size = int(2*(unit_size))
+        indexes = np.arange(_2n/(2**step1)).astype(np.uint)
+        indexes_ij = mat_size * indexes
+        for i in indexes_ij:
+            for j in indexes_ij:
+                # (i, j)
+                r1i     = i
+                r1f2i   = r1i + unit_size
+                c1i     = j
+                c1f2i   = c1i + +unit_size
+                r2f     = r1f2i + unit_size
+                c2f     = c1f2i + unit_size
+                # I - Z
+                coef = 1
+                mat[r1i: r1f2i, c1i:c1f2i] += coef*mat[r1f2i: r2f, c1f2i:c2f]
+                mat[r1f2i: r2f, c1f2i:c2f] = mat[r1i: r1f2i, c1i:c1f2i] -2*coef *mat[r1f2i: r2f, c1f2i:c2f]
+                # X -Y
+                coef = -1j
+                mat[r1f2i: r2f, c1i:c1f2i] += coef*mat[r1i: r1f2i, c1f2i:c2f]
+                mat[r1i: r1f2i, c1f2i:c2f] = mat[r1f2i: r2f, c1i:c1f2i] -2*coef *mat[r1i: r1f2i, c1f2i:c2f]
+        
+        unit_size *=2
+    return mat
 #------------------------
 #PauliElement
 #------------------------
