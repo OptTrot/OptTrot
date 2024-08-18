@@ -5,7 +5,7 @@ import pandas as pd
 import networkx as nx  # Change the module to rustworkx.
 from itertools import combinations
 from typing import Iterable
-from .core.pauli import PauliPoly, PauliElement  # Assuming the PauliPoly class is defined in pauli.py
+from .pauli import PauliPoly, PauliElement  # Assuming the PauliPoly class is defined in pauli.py
 
 
 # New Pauli term must be update to edge list dataframe.
