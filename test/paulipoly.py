@@ -127,22 +127,6 @@ class PauliPoly:
         result = self._terms()[self._iter_current]
         self._iter_current += 0 if self._iter_current == len(self._terms()) else 1
         return result
-    #def add(self, p: Union[PauliElement, PauliPoly]):
-    #    if isinstance(p, PauliElement): # Use in and & operator
-    #        if np.isin(self._terms(), p, assume_unique=True, kind='sort'):
-    #            self._terms() = self._terms() + p
-    #        else:
-    #            self._terms() =  np.sort(np.concatenate(self._terms(), np.array([p])))
-    #    if isinstance(p, PauliPoly):
-    #        # Intersection
-    #        for p_t in (self._terms().keys()&p._terms.keys()):
-    #            self._terms()[p_t.sym_code] = self._terms()[p_t.sym_code] + p_t
-    #        # Complement
-    #        for p_t in (p._terms.keys()-self._terms().keys()):
-    #            self._terms()[p_t.sym_code] = p_t
-        # if len(terms) > tolerance # using a matrix method.
-        #mat = self.coef_matrix + p.coef_matrix
-        #return PauliPoly.from_coef_mat(mat)
     # Interface to other packages-----------------------------
     def to_pennylane(self, except_zero=True):
         from pennylane.pauli import PauliSentence
