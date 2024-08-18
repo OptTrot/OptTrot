@@ -1,3 +1,4 @@
+from . import pauli_c
 from . import pauli
 from . import pauli_utils
 from . import utils

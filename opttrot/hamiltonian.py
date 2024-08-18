@@ -12,8 +12,8 @@ from .pauli import PauliPoly, PauliElement  # Assuming the PauliPoly class is de
 # 
 class Hamiltonian(PauliPoly):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.local_decomposition = self.get_decomposition(self._terms)
+        super(Hamiltonian, self).__init__(*args, **kwargs)
+        self.local_decomposition = self.get_decomposition(self.poly)
         self._nx_graph = None  # Cache for NetworkX graph
     @classmethod
     def from_file(cls, filepath:Union[str, Path]):
@@ -36,11 +36,12 @@ class Hamiltonian(PauliPoly):
     def get_decomposition(pauli_basis: Iterable[PauliElement]):
         p_dict = {}
         for p in pauli_basis:
-            nx, nz = p.scode
+            nx = p.nx 
+            nz = p.nz
             num = 0 
             num += 1 if nz > 0 else 0
             num += 2 if nx > 0 else 0
-            p_dict[p.string] = (num, nz, nx, p.np_coef)
+            p_dict[p.pstr] = (num, nz, nx, p.weight)
         df = pd.DataFrame.from_dict(
             p_dict, 
             orient="index",
@@ -50,7 +51,7 @@ class Hamiltonian(PauliPoly):
         return df
 
     def to_networkx_graph(self):
-        if len(self._terms) == 1:
+        if self._coef_matrix.size == 1:
             raise RuntimeError("You cannot make single graph.")
         df = self.local_decomposition
         edge_df = pd.DataFrame(combinations(df["Pstring"].values, 2), columns=['source', 'target'])
