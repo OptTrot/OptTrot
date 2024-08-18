@@ -48,7 +48,6 @@ get_PauliList_FromCoefs(PyObject *dummy, PyObject *args)
     uint64_t * cols = (uint64_t *)PyArray_DATA((PyArrayObject *)col);
     npy_cdouble * datas = (npy_cdouble *)PyArray_DATA((PyArrayObject *)data);
 
-
     PyArrayObject * pauli_array = PyArray_SimpleNew(1, dims, NPY_OBJECT);
     
     if (pauli_array == NULL)
@@ -62,7 +61,7 @@ get_PauliList_FromCoefs(PyObject *dummy, PyObject *args)
 
     for(int i =0; i<dims[0]; i++)
     {   
-        bignum_from_int(&nx, rows[i]);
+        bignum_from_int(&nx, rows[i]^cols[i]);
         bignum_from_int(&nz, cols[i]);
 
         PauliElement * pauli_element = Get_PauliElement(&nx, &nz, qubit, npy_creal(datas[i]), npy_cimag(datas[i]));
