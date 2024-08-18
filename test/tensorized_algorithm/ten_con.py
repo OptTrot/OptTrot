@@ -9,7 +9,7 @@ from typing import Tuple
 #cc = CC('ten_con')
 #@cc.export('_mat_coef_mat', '')
 @jit
-def _mat_to_coef_mat(H:np.matrix):
+def mat_decompose(H:np.matrix):
         """Tensorized decomposition of hermit matrix into pauli terms.
             See Hantzko et al, 2023.
 
@@ -42,7 +42,42 @@ def _mat_to_coef_mat(H:np.matrix):
         H *= (1/(2**n))
         return H
 @jit
-def _coef_to_mat(coef_matrix:np.matrix):
+def mat_compose(coef_matrix:np.matrix):
+    mat = coef_matrix
+    _2n = mat.shape[0] # 2^n
+    steps = int(np.log2(_2n))# n
+    unit_size= 1
+ 
+    for step in range(steps):
+        step1 = step+1
+        mat_size = int(2*(unit_size))
+        indexes = np.arange(_2n/(2**step1)).astype(np.uint)
+        indexes_ij = mat_size * indexes
+        for i in indexes_ij:
+            for j in indexes_ij:
+                # (i, j)
+                r1i     = i
+                r1f2i   = r1i + unit_size
+                c1i     = j
+                c1f2i   = c1i + +unit_size
+                r2f     = r1f2i + unit_size
+                c2f     = c1f2i + unit_size
+
+                # Do not replace the below code to in-place operator += or *=.
+                # Numba jit yieds different handling process in compile time. 
+                # I - Z
+                coef = 1
+                mat[r1i: r1f2i, c1i:c1f2i] = mat[r1i: r1f2i, c1i:c1f2i] + coef*mat[r1f2i: r2f, c1f2i:c2f]
+                mat[r1f2i: r2f, c1f2i:c2f] = mat[r1i: r1f2i, c1i:c1f2i] -2*coef *mat[r1f2i: r2f, c1f2i:c2f]
+                # X -Y
+                coef = -1j
+                mat[r1i: r1f2i, c1f2i:c2f] = mat[r1i: r1f2i, c1f2i:c2f]  + coef*mat[r1f2i: r2f, c1i:c1f2i]
+                mat[r1f2i: r2f, c1i:c1f2i] = mat[r1i: r1f2i, c1f2i:c2f] - 2*coef*mat[r1f2i: r2f, c1i:c1f2i]
+                
+        unit_size *=2
+    return mat
+
+def mat_compose_no_jit(coef_matrix:np.matrix):
     mat = coef_matrix
     _2n = mat.shape[0] # 2^n
     steps = int(np.log2(_2n))# n
@@ -68,8 +103,8 @@ def _coef_to_mat(coef_matrix:np.matrix):
                 mat[r1f2i: r2f, c1f2i:c2f] = mat[r1i: r1f2i, c1i:c1f2i] -2*coef *mat[r1f2i: r2f, c1f2i:c2f]
                 # X -Y
                 coef = -1j
-                mat[r1f2i: r2f, c1i:c1f2i] += coef*mat[r1i: r1f2i, c1f2i:c2f]
-                mat[r1i: r1f2i, c1f2i:c2f] = mat[r1f2i: r2f, c1i:c1f2i] -2*coef *mat[r1i: r1f2i, c1f2i:c2f]
+                mat[r1i: r1f2i, c1f2i:c2f] += coef*mat[r1f2i: r2f, c1i:c1f2i]
+                mat[r1f2i: r2f, c1i:c1f2i] = mat[r1i: r1f2i, c1f2i:c2f] - 2*coef*mat[r1f2i: r2f, c1i:c1f2i]
         
         unit_size *=2
     return mat
