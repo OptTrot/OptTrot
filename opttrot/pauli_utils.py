@@ -52,7 +52,7 @@ def pstr2sym_code(pstr:str, sim_code:Union[dict, None]=None)->Tuple[int,int]:
 def pstr2ij_code(pstr:str):
      return sym_code2ij_code(pstr2sym_code(pstr))
 def sym_code2ij_code(x, z):
-        return z, x^z
+        return  
 def ij_code2sym_code(i, j):
         return i^j, i
 def sym_code2pstr(ns:Tuple[int, int], l:int)->str:
@@ -98,14 +98,13 @@ def get_pauli_fam_mat(n, fam="Z"):
         return list(map(krons, product([I, PAULI_MATRICES[fam]], repeat=int(n))))
 
 @jit
-def mat_decompose(mat):
+def mat_decompose(mat:np.matrix):
     #Tensrosized reconstruction method: O(8^n)
     # Normal method: O(16^n)
     # mat = np.zeros(self.coef_matrix.shape) 
     # for p in self.poly:
     #   mat += p.coef*p.matrix
     #mat = self.coef_matrix
-
     _2n = mat.shape[0] # 2^n
     steps = int(np.log2(_2n)) #n
     unit_size = 1
