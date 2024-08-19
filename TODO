@@ -5,14 +5,21 @@ Old: below
 
 # Implementation
 
-- PauliElement list construction in C.
+- Larger element manipulation Python+PauliElement:
+  - Qiskit implementation only treats the 64 number of qubits.
+  - The PauliElement could handle the larger qubit system more faster than qiskit.
+  - It is not ideal for future, but current implementation would be enough for hundreds qubit manipulation.
+  - Slower than now but possible.
+
+- PauliElement list construction in C(Done).
+  - See `pauli_bn_methods.c/.h`
 
 - Accelerate Tensorized Decomposition method
   - Current: Python + JIT method.
   - We have to change the module as AOT compile method.
   - See Numba AOT: https://numba.pydata.org/numba-doc/dev/user/pycc.html
 
-- PauliPoly strucutre design
+- PauliPoly strucutre design(Decided: Csr-sparse matrix in scipy.)
   - Current structure: Naive list method ( Too slow ).
   - Methods 
     - (1): Sparse Representation(SR, CSR): Using ij code as matrix index.

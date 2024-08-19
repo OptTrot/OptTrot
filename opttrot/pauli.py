@@ -10,26 +10,24 @@ from scipy.sparse import coo_matrix, csr_matrix
 if platform.system() !="Windows":
     from opttrot.pauli_c import PauliElement
     from opttrot.pauli_c import get_paulilist_from_coefs
+    from opttrot.tensorized_method import mat_decompose, mat_compose
     from opttrot.pauli_utils import (
         FLT_EPS, ij_code2sym_code,
         pauli_to_pennylane,
         pauli_to_qiskit,
-        mat_decompose,
-        mat_compose,
         pstr2sym_code
         )
 else:
     from .pauli_c import PauliElement
     from .pauli_c import get_paulilist_from_coefs
+    from opttrot.tensorized_method import mat_decompose, mat_compose
     from .pauli_utils import (
         FLT_EPS, ij_code2sym_code,
         pauli_to_pennylane,
         pauli_to_qiskit,
-        mat_decompose,
-        mat_compose,
         pstr2sym_code
         )
-
+from opttrot.tensorized_method import mat_decompose, mat_compose
 class PauliPoly:
     def __init__(self, 
                  coef_mat:Union[np.matrix, coo_matrix] = None,
@@ -73,10 +71,9 @@ class PauliPoly:
     @classmethod
     def from_matrix(cls, H:np.matrix, tol=FLT_EPS):
         # Tensorized decomposition See Hantzko et al, 2023.
-        mat = deepcopy(H)
-        cmat = mat_decompose(mat)
-        cmat[np.abs(cmat)<tol] = 0.
-        return cls(cmat)
+        mat = copy(H)
+        #cmat[np.abs(cmat)<tol] = 0.
+        return cls(mat_decompose(mat))
     @property
     def terms(self):
         return [(p.weight, p.pstr) for p in self._terms()] # convert to list and sort

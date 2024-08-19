@@ -14,6 +14,7 @@ class Hamiltonian(PauliPoly):
     def __init__(self, *args, **kwargs):
         super(Hamiltonian, self).__init__(*args, **kwargs)
         self.local_decomposition = self.get_decomposition(self.poly)
+        self.edge_df = None
         self._nx_graph = None  # Cache for NetworkX graph
     @classmethod
     def from_file(cls, filepath:Union[str, Path]):
@@ -24,12 +25,12 @@ class Hamiltonian(PauliPoly):
     @property
     def compatible_graph(self):
         if self._nx_graph is None:
-            self._nx_graph = self.to_networkx_graph()
+            self._nx_graph, self.edge_df = self.to_networkx_graph()
         return self._nx_graph
 
     def draw_graph(self, *args, **kwargs):
         if self._nx_graph is None:
-            self._nx_graph = self.to_networkx_graph()
+            self._nx_graph, self.edge_df = self.to_networkx_graph()
         return nx.draw(self._nx_graph, *args, **kwargs)
     
     @staticmethod
@@ -61,8 +62,8 @@ class Hamiltonian(PauliPoly):
         edge_df.rename(columns={"Z": "Zt", "X": "Xt"}, inplace=True)
         edge_df["commute"] = edge_df.apply(lambda row: int(self.commute_reggio_df(row[["Zs", "Xs", "Zt", "Xt"]])), axis=1)
         
-        G = nx.from_pandas_edgelist(edge_df, 'source', 'target', edge_attr='commute')
-        return G
+        G = nx.from_pandas_edgelist(edge_df[edge_df["commute"] ==1], 'source', 'target', edge_attr='commute')
+        return G, edge_df
     
     @staticmethod
     def commute_reggio_df(s):
