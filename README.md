@@ -40,8 +40,8 @@ In qubits < 12
 
 |Opeartion|Faster|
 |:-------:|:----:|
-|o->mat   | Qiskit(x1.2) | 
-|mat->o   | PauliPoly(x2-1.2) | 
+|o->mat   | PauliPoly(x2-1.2)| 
+|mat->o   | Qiskit(x1.2)| 
 |Addition | PauliPoly(x2) |
 |Mat Mul  | PauliPoly(x Exponential) |
 
