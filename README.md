@@ -34,6 +34,7 @@ You can set a arbitrary qubit numbers up to 8,589,934,588 number of qubits by se
 ### Speed comparsion
 
 A(xN.N): B took N.N times more slower than A.
+In qubits < 12
 
 |Opeartion|Faster|
 |:-------:|:----:|
