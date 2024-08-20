@@ -56,7 +56,7 @@ Single Pauli term
 Pauli poly ( Matrix construction 12 qubits)
 |Qiskit| OptTrot |
 |:------:|:-----:|
-|3.48 s ± 12.3 ms| 33.2 s ± 1.98 s|
+|33.2 s ± 1.98 s|3.48 s ± 12.3 ms|
 
 
 
