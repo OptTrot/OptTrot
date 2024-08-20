@@ -30,6 +30,8 @@ However, in integer representation, bit and integer conversion is very natural i
 In here, we used portable arbitrary integer library, [tiny-bignum](https://github.com/kokke/tiny-bignum-c) with additional 
 extension routines, see [bn_ext](https://github.com/HYUNSEONG-KIM/big_num_ext).
 You can set a arbitrary qubit numbers up to 8,589,934,588 number of qubits by set a value during the installation, (defaul=1024).
+The matrix conversion and full algebra not supported yet but soon it would be possible.
+Current Qiskit <=1.2 version only support up to 64 qubits systems including matrix conversion.
 
 ### Speed comparsion
 
