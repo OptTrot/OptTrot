@@ -1,10 +1,4 @@
 
-
-
-
-
-
-
 # Numpy API
 
 ### Import array
