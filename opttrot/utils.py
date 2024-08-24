@@ -1,6 +1,32 @@
 from functools import reduce
 import numpy as np
 
+from .c_utils import bitwise_count as _bitwise_count_c
+
+_np_prime_version, _, _ =np.version.version.split(".")
+_np_prime_version = int(_np_prime_version)
+# if numpy version  >=2.0
+
+def np_bitwise_count(arr:np.ndarray)->np.ndarray:
+    """bitwise count rotine for <=1.26 numpy version
+    In numpy >-2.0 there is a routine :code:`bitwise_count`.
+    However, in <=1.26 there is no bitwise couting routine.
+    This is a wrapper function detecting version of numpy and 
+    apply the C-implemented routine.
+    The implementation using bignum library to cout large PyLong object,
+    the other dtypes cases are estimated with C native data types.
+
+    Args:
+        arr (np.ndarray): Integer object array.
+
+    Returns:
+        _type_: Integer array of bitcouting of each elements.
+    """
+    
+    if _np_prime_version >= 2:
+        return np.bitwise_count(arr)
+    else:
+        return _bitwise_count_c(arr)
 
 # Matrix-Tensor operators
 def krons(*oper_list)->np.matrix:
