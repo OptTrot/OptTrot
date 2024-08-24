@@ -86,7 +86,7 @@ def sym_code2pstr(ns:Tuple[int, int], l:int)->str:
                 result.append("Z")
         return "".join(result)
 def ij_code2_pstr(ns:Tuple[int, int], l:int)->str:
-     return sym_code2pstr(ij_code2sym_code(*ns))
+     return sym_code2pstr(ij_code2sym_code(*ns), l)
 # General Pauli terms
 def get_pstrs(n:int):
      return list(map(lambda x: "".join(x), product(f"IXYZ", repeat=int(n))))
@@ -96,6 +96,13 @@ def get_pauli_fam_terms(n, fam="Z"):
         return list(map(lambda x: "".join(x), product(f"I{fam}", repeat=int(n))))
 def get_pauli_fam_mat(n, fam="Z"):
         return list(map(krons, product([I, PAULI_MATRICES[fam]], repeat=int(n))))
+def pstr_commute(pa, pb):
+    nx1, nz1 =  pstr2sym_code(pa)
+    nx2, nz2 =  pstr2sym_code(pb)
+
+    a = bin(nx1&nz2).count("1")%2
+    b = bin(nx2&nz1).count("1")%2
+    return a==b
 
 #------------------------
 #PauliElement
