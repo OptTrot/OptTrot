@@ -6,10 +6,8 @@
 
 #ifndef __Pauli_C_H__
 #define __Pauli_C_H__
-#include "pauli_bn.h"
-
-
-#include "pauli_bn_methods.h"
+#include "pauli_bn/pauli_bn.h"
+#include "pauli_bn/pauli_bn_methods.h"
 
 
 PyObject * _bignum_bytes(void){return (PyObject *)PyLong_FromLong(BIG_NUM_BYTES);};
@@ -25,6 +23,18 @@ static PyMethodDef PauliMethods[]={
     {
         .ml_name = "get_paulilist_from_coefs", 
         .ml_meth = get_PauliList_FromCoefs, 
+        .ml_flags = METH_VARARGS, 
+        .ml_doc = NULL
+    },
+    {
+        .ml_name = "get_commutes", 
+        .ml_meth = get_commutes, 
+        .ml_flags = METH_VARARGS, 
+        .ml_doc = NULL
+    },
+    {
+        .ml_name = "get_commutes_sparse", 
+        .ml_meth = get_commutes_sparse, 
         .ml_flags = METH_VARARGS, 
         .ml_doc = NULL
     },

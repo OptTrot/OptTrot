@@ -21,6 +21,23 @@ void _ints_to_pstr(DTYPE nx, DTYPE nz, size_t type_size, char * buff){
     
 }
 
+bool commute_test(struct bn * nx1, struct bn * nz1, struct bn * nx2, struct bn * nz2)
+{
+    struct bn tmp1, tmp2;
+    bignum_and(nx1, nz2, &tmp1);
+    bignum_and(nz1, nx2, &tmp2);
+    /* Naive implementation
+    i = bignum_bit_count(&tmp1)&1;
+    j = bignum_bit_count(&tmp2)&1;
+    if(i==j){Py_RETURN_TRUE;}
+    else{Py_RETURN_FALSE;}
+    */
+
+    // Using a simpler method 
+    bignum_xor(&tmp1, &tmp2, &tmp2);
+    return (bool)bignum_bit_count(&tmp2)^1;
+}
+
 size_t bignum_tuple_to_pstr(
     struct bn * nx, struct bn * nz, 
     size_t qubits,
@@ -50,6 +67,7 @@ size_t bignum_tuple_to_pstr(
     size_t length = strlen(buff);
     return length;
 }
+
 
 /* 
 Convert the x, z pauli code to  

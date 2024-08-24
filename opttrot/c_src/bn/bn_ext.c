@@ -14,11 +14,12 @@ unsigned int bignum_bit_count(struct bn* n)
     for(int i = 0; i < BN_ARRAY_SIZE; ++i)
 {
         // block count - > sum
-        count += _fast_bit_count32((unsigned int)n->array[i]); 
+        count += _fast_bit_count32((uint32_t)n->array[i]); 
     }
     return count;
 }
-int _fast_bit_count32 (unsigned int n) {
+int _fast_bit_count32 (uint32_t n) 
+{
     // This algorithm only works for 32bit integer,
     // so that, it is well fits with tiny-big-num library.
 
@@ -36,6 +37,28 @@ int _fast_bit_count32 (unsigned int n) {
           +BITS_TABLE_uint32[(n >>  8) & 0xffu]
           +BITS_TABLE_uint32[(n >> 16) & 0xffu]
           +BITS_TABLE_uint32[(n >> 24) & 0xffu];
+}
+int _fast_bit_count8 (uint8_t n) 
+{
+    return BITS_TABLE_uint32[n & 0xffu];
+}
+int _fast_bit_count16 (uint16_t n) 
+{
+    return BITS_TABLE_uint32[n & 0xffu]
+          +BITS_TABLE_uint32[(n >>  8) & 0xffu];
+}
+int _fast_bit_count64 (uint64_t n) 
+{
+    // This algorithm only works for 64bit integer,
+    // so that, it is well fits with tiny-big-num library.
+    return BITS_TABLE_uint32[n & 0xffu]
+          +BITS_TABLE_uint32[(n >>  8) & 0xffu]
+          +BITS_TABLE_uint32[(n >> 16) & 0xffu]
+          +BITS_TABLE_uint32[(n >> 24) & 0xffu]
+          +BITS_TABLE_uint32[(n >> 32) & 0xffu]
+          +BITS_TABLE_uint32[(n >> 40) & 0xffu]
+          +BITS_TABLE_uint32[(n >> 48) & 0xffu]
+          +BITS_TABLE_uint32[(n >> 56) & 0xffu];
 }
 /* Additional note on bit counting with lookup table.
 If the integer data type becomes 64bit, then

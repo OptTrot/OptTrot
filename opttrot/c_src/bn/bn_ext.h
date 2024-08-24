@@ -48,6 +48,9 @@ static const int BITS_TABLE_uint32 [256] = {
     4,5,5,6,5,6,6,7,5,6,6,7,6,7,7,8
 };
 int _fast_bit_count32 (unsigned int n);
+int _fast_bit_count8 (uint8_t n);
+int _fast_bit_count16 (uint16_t n);
+int _fast_bit_count64 (uint64_t n);
 /*
 If you modified `WORD_SIZE`,
 you have to recalculate the `BITS_TABLE_uint32` data.

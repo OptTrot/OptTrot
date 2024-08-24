@@ -508,17 +508,29 @@ PyObject *PauliElement_otimes(PauliElement *self, PauliElement *other) {
 }
 PyObject * PauliElement_commute(PauliElement * self, PauliElement * other)
 {
-    struct bn tmp1, tmp2;
-    int i=0, j=0;
-    bignum_xor(&self->nx, &other->nz, &tmp1);
-    bignum_xor(&self->nz, &other->nx, &tmp2);
+    // struct bn tmp1, tmp2;
+    // bignum_and(&self->nx, &other->nz, &tmp1);
+    // bignum_and(&self->nz, &other->nx, &tmp2);
+    // /* Naive implementation--------------------
+    // i = bignum_bit_count(&tmp1)&1;
+    // j = bignum_bit_count(&tmp2)&1;
+    // if(i==j){Py_RETURN_TRUE;}
+    // else{Py_RETURN_FALSE;}
+    // */
 
-    i = bignum_bit_count(&tmp1)&1;
-    j = bignum_bit_count(&tmp2)&1;
+    // // Using a simpler method 
+    // bignum_xor(&tmp1, &tmp2, &tmp2);
+    // if (bignum_bit_count(&tmp2)^1){Py_RETURN_TRUE;}
+    // else{Py_RETURN_FALSE;}
 
-    if(i==j)
-{Py_RETURN_TRUE;}
-    else{Py_RETURN_FALSE;}
+    if(commute_test(&self->nx, &self->nz, &other->nx, &other->nz))
+    {
+        Py_RETURN_TRUE;
+    }
+    else
+    {
+        Py_RETURN_FALSE;
+    }
 }
 PyObject *PauliElement_exact_eq(PauliElement * self, PauliElement * other)
 {
