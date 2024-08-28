@@ -1,12 +1,17 @@
 from typing import *
 from pathlib import Path
+from itertools import combinations
+from collections import defaultdict
+from typing import Iterable
 
 import pandas as pd
 import numpy as np
 import rustworkx as rx
 import networkx as nx  # Change the module to rustworkx.
-from itertools import combinations
-from typing import Iterable
+
+#from tqdm import tqdm
+
+
 from .pauli import PauliPoly, PauliElement  # Assuming the PauliPoly class is defined in pauli.py
 
 
@@ -42,11 +47,6 @@ class Hamiltonian(PauliPoly):
             self._nx_graph = self.to_networkx_graph()
         return self._nx_graph
 
-    def draw_graph(self, *args, **kwargs):
-        if self._nx_graph is None:
-            self._nx_graph = self.to_networkx_graph()
-        return nx.draw(self._nx_graph, *args, **kwargs)
-    
     @staticmethod
     def get_decomposition(pauli_basis: Iterable[PauliElement]):
         p_dict = {}
@@ -64,11 +64,28 @@ class Hamiltonian(PauliPoly):
         )
         df.reset_index(inplace=True, names="Pstring")
         return df
-    def to_graph(self):
-        G = rx.PyGraph.from_adjacency_matrix(self.adj_mat, 0)
-        #G = nx.from_pandas_edgelist(self.edge_df[self.edge_df["commute"] ==1], 'source', 'target', edge_attr='commute')
-        return G
     
+    def to_graph(self, anti=False):
+        if anti:
+            G = rx.PyGraph.from_adjacency_matrix(1-self.adj_mat, 0)
+        else:
+            G = rx.PyGraph.from_adjacency_matrix(self.adj_mat, 0)
+        return G
+    def get_commuting_group(self, solver=None):
+        # Qiskit method
+        if solver is None:
+            coloring_dict = rx.graph_greedy_color(self.to_graph(anti=True))
+            groups = defaultdict(list)
+            for idx, color in coloring_dict.items():
+                groups[color].append(idx)
+            return groups
+        
+    def draw_graph(self, *args, **kwargs):
+        if self._nx_graph is None:
+            self._nx_graph = self.to_networkx_graph()
+        return nx.draw(self._nx_graph, *args, **kwargs)
+    
+
     @staticmethod
     def commute_reggio_df(s):
         a = bin(s.iloc[0] & s.iloc[3]).count("1")%2
