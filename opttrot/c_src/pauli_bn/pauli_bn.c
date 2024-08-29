@@ -465,7 +465,7 @@ PyObject * PauliElement_mat_mul(PauliElement *self, PauliElement *other)
 
     f -= result->f;
     f = f&3;
-    result->f = result->f&3;
+    result->f = (result->f)&3;
 
     // Send the remained phase to weight.
     //int i = (4+(f-result->f))&3;
@@ -497,9 +497,11 @@ PyObject *PauliElement_otimes(PauliElement *self, PauliElement *other) {
     bignum_lshift(&self->nx, &result->nx, other->n);
     bignum_lshift(&self->nz, &result->nz, other->n);
 
-    bignum_xor(&self->nx, &other->nx, &result->nx);
-    bignum_xor(&self->nz, &other->nz, &result->nz);
-
+    //bignum_xor(&self->nx, &other->nx, &result->nx);
+    //bignum_xor(&self->nz, &other->nz, &result->nz);
+    bignum_xor(&result->nx, &other->nx, &result->nx);
+    bignum_xor(&result->nz, &other->nz, &result->nz);
+    
     result->n = self->n + other->n;
     result->weight = _Py_c_prod(self->weight, other->weight);
     result->f = (self->f + other->f)&3;//%4 <- Check it
