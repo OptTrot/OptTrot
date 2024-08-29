@@ -1,7 +1,7 @@
 from functools import reduce
 import numpy as np
+from opttrot.c_utils import bitwise_count as _bitwise_count_c
 
-from .c_utils import bitwise_count as _bitwise_count_c
 
 _np_prime_version, _, _ =np.version.version.split(".")
 _np_prime_version = int(_np_prime_version)

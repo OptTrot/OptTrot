@@ -1,11 +1,20 @@
+#from __future__ import annotations
+#from typing import *
+#from numbers import Number
+#from copy import copy, deepcopy
+#import platform
+
+#import numpy as np
+#from scipy.sparse import coo_matrix, csr_matrix
 from __future__ import annotations
+import platform
 from typing import *
 from numbers import Number
 from copy import copy, deepcopy
-import platform
-
+from functools import reduce
 import numpy as np
 from scipy.sparse import coo_matrix, csr_matrix
+
 
 if platform.system() !="Windows":
     from opttrot.pauli_c import PauliElement
@@ -21,18 +30,16 @@ if platform.system() !="Windows":
         )
     from opttrot.utils import np_bitwise_count
 else:
-    from .pauli_c import PauliElement
-    from .pauli_c import get_paulilist_from_coefs
-    from opttrot.tensorized_method import mat_decompose, mat_compose
+    
+    from .tensorized_method import mat_decompose, mat_compose
     from .pauli_utils import (
         FLT_EPS, ij_code2sym_code,
         pauli_to_pennylane,
         pauli_to_qiskit,
         pstr2sym_code
         )
+    from .pauli_c import PauliElement, get_paulilist_from_coefs
     from opttrot.utils import np_bitwise_count
-from opttrot.tensorized_method import mat_decompose, mat_compose
-
 
 #class Pauli(PauliElement):
 #    def __init__(self, *args, **kwargs):
@@ -219,6 +226,6 @@ class PauliPoly:
             coefs.append(coef)
             paulis.append(pauli)
         if with_list:
-            from qiiskit.quantum_info import PauliList
+            from qiskit.quantum_info import PauliList
             paulis = PauliList(paulis)
         return coefs, paulis

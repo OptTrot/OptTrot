@@ -1,4 +1,5 @@
-import numpy as np
+from opttrot import np
+
 from numba.pycc import CC
 from numba import jit
 

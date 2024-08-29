@@ -1,12 +1,10 @@
 from typing import *
 from itertools import product
 from functools import reduce
-
 import numpy as np
-from numba import jit
 
-from .pauli_c import PauliElement
-from .utils import krons
+from opttrot.pauli_c import PauliElement
+from opttrot.utils import krons
 
 #-------------------
 FLT_EPS = 1E-8

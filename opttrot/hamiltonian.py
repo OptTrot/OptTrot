@@ -1,18 +1,17 @@
 from typing import *
-from pathlib import Path
-from itertools import combinations
-from collections import defaultdict
-from typing import Iterable
 
-import pandas as pd
-import numpy as np
-import rustworkx as rx
-import networkx as nx  # Change the module to rustworkx.
+from opttrot import Path
+from opttrot import defaultdict
+from opttrot import Iterable
+from opttrot import pd
+from opttrot import np
+from opttrot import rx
+from opttrot import nx  # Change the module to rustworkx.
 
 #from tqdm import tqdm
 
 
-from .pauli import PauliPoly, PauliElement  # Assuming the PauliPoly class is defined in pauli.py
+from opttrot.pauli import PauliPoly, PauliElement  # Assuming the PauliPoly class is defined in pauli.py
 
 
 # New Pauli term must be update to edge list dataframe.
