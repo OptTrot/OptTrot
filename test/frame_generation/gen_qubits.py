@@ -219,13 +219,14 @@ def run(N, ppols=2):
     num_core = ppols
     frames = set()
     frames = frames | (Frames[0])
+    
     with open(f"qubit{N}_PauliFrame.data", "wb") as file:
             pickle.dump((N), file)
 
     for k in range(0, 15):
         print(f"{k}-th:", end="")
         ith_set = set()
-
+        ends = []
         # Create a pool of worker processes
         with multiprocessing.Pool(num_core) as pool:
             # Map the process_permutations function to each frame in parallel
@@ -233,15 +234,21 @@ def run(N, ppols=2):
             with tqdm(total=len(Frames[0]), desc=f"Processing Frame {k}") as pbar:
                 # Use imap_unordered for real-time updates
                 for result in pool.imap_unordered(process_permutations, [(p, N) for p in Frames[0]]):
-                    ith_set.update(result)
+                    if result in ith_set:
+                        ends.append(result)
+                    else:
+                        ith_set.update(result)
                     pbar.update()
         # Combine results from all processes
         #for result in results:
         #    ith_set.update(result)
 
         print(len(ith_set))
-        with open(f"qubit{N}_PauliFrame.data", "+wb") as file:
+        with open(f"qubit{N}_{k}_PauliFrame.data", "wb") as file:
             pickle.dump((i, ith_set), file)
+
+        with open(f"qubit{N}_{k}_PauliFrame_ends.data", "wb") as file2:
+            pickle.dump((i, ends), file2)
         
         Frames = [(ith_set)]
         if frames >= ith_set:
