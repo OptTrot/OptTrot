@@ -73,7 +73,7 @@
 
     \vspace{0.5cm}
     {\Large\bfseries \assignmentTitle \par}
-    {\large Optimized Trotterized circuit library \par}
+    {\large Optimized Trotter Circuit Library \par}
     \vspace{1cm}
     {
     \noindent
@@ -83,9 +83,9 @@
 
         Hyunseong Kim
 
-        Gaya Yun
-
         Hanseo Kim
+        
+        Gaya Yun
     \end{minipage}
     \begin{minipage}{0.45\textwidth}
         \centering
@@ -144,7 +144,7 @@ we can analyze the overall error by applying order of local terms.
 
 It is well known that the exponential mapping error is represented with Baker Campbell Hausdorff formula.
 Usually, the formula is not written with commutator form, Childs et al proved that the error term 
-as a function of sequential commutator of local terms.%\cite{}.
+as a function of sequential commutator of local terms\cite{childs_theory_2021}.
 
 \begin{equation}
     O(\alpha t^2)
@@ -165,8 +165,7 @@ then the leading coefficient becomes $\alpha_{com} = \begin{cases}
     c_i - c_j & \mbox{ if } [P_i, P_j] \neq 0 \\
 \end{cases}$.
 
-It is affected by coefficients, their size, and sign, and 
-applying order and commutation property.
+It is affected by coefficients, their size, and sign, and commutation property.
 In the above example, we cannot observe the commutation and anti-commutation
 effect, since, if they were commuting to each other, the $O(\alpha_{com} t^2) = 0$.
 Let us expand the system to more general case.
@@ -184,42 +183,67 @@ where, $[H_i, H_j] \neq 0,$ and
 $[P_k, P_l] \neq 0$ if $P_k \in H_i, P_l \in H_j, i \neq j$.
 
 \begin{align}
-    \Pi_{l=1}^5 \exp(- i t (c_l P_l)) = \exp(-it H) + O(\alpha_{com 1} t^2)\\
-    \Pi_{k=1}^3 \exp(- i t (H_k)) = \exp(-it H) + O(\alpha_{com 2} t^2)\\
+    \Pi_{l=1}^5 \exp(- i t (c_l P_l)) = \exp(-it H) + O(\alpha_{com 1} t^2)\label{eq:pauli_evolve}\\
+    \Pi_{k=1}^3 \exp(- i t (H_k)) = \exp(-it H) + O(\alpha_{com 2} t^2) \label{eq:evolve_commute}
 \end{align}
 
 
-Following the $q=1$ order expansion, then in the first order the bounded error 
-order is reduced to 
+Following the $q=1$ order expansion, then in the first order, the bound error 
+coefficients are reduced to 
 
 \begin{align}
-    \alpha_{com1} &= 2(|| c_1 c_2 [P_1, P_2]|| + || c_1 c_4 [P_1, P_4]|| + || c_1 c_5 [P_1, P_5]|| \\
-    + || c_2 c_3 [P_2, P_3]|| + || c_2 c_4 [P_2, P_4]|| + || c_2 c_5 [P_2, P_5]|| \\
-    + || c_3 c_4 [P_3, P_4]|| + || c_3 c_5 [P_3, P_5]||)\\
-    \alpha_{com2} &= 2(|| [H_1, H_2]|| + || [H_1, H_3]|| + || [H_2, H_3]||) \\
+    \alpha_{com1} = 2(|| c_1 c_2 [P_1, P_2]|| + || c_1 c_4 [P_1, P_4]|| + || c_1 c_5 [P_1, P_5]||& \\
+    + || c_2 c_3 [P_2, P_3]|| + || c_2 c_4 [P_2, P_4]|| + || c_2 c_5 [P_2, P_5]||& \\
+    + || c_3 c_4 [P_3, P_4]|| + || c_3 c_5 [P_3, P_5]||)&\\
+    \alpha_{com2} = 2(|| [H_1, H_2]|| + || [H_1, H_3]|| + || [H_2, H_3]||)& \\
 \end{align}
 
 
 \begin{align}
-    \alpha_{com1} &= ||c_1 c_2|| + ||c3 c_2|| + ||c_1 c_4|| + ||c_2 c_4|| + ||c_1 c_5|| + ||c_2 c_5||  + ||c_2 c_4|| + ||c_2 c_5||\\
-    \alpha_{com2} &= ||c_1 c_2 + c3 c_2|| + ||c_1 c_4 + c_2 c_4 + c_1 c_5 + c_2 c_5||  + ||c_2 c_4 + c_2 c_5||
+    0.5 \alpha_{com1} &= ||c_1 c_2|| + ||c_3 c_2|| + ||c_1 c_4|| + ||c_2 c_4|| + ||c_1 c_5|| + ||c_2 c_5||  + ||c_2 c_4|| + ||c_2 c_5||\\
+    0.5 \alpha_{com2} &= ||c_1 c_2 + c_3 c_2|| + ||c_1 c_4 + c_2 c_4 + c_1 c_5 + c_2 c_5||  + ||c_2 c_4 + c_2 c_5||
 \end{align}
+
 
 Therefore, by the distribution of $\{c_i\}$ and commutation relationship of the local terms,
 the constructed error rate vary.
+However, Eq(\ref{eq:evolve_commute}) is just a re-ordering of Eq(\ref{eq:pauli_evolve}), since 
 
-\begin{observation} \textbf{Group commuting order}
+\begin{align}
+    \exp(- i t (H_1)) &= \exp(- i t (c_1 P_1)) \exp(- i t (c_3 P_3)) \\ 
+    \exp(- i t (H_2)) &= \exp(- i t (c_2 P_2))\\
+    \exp(- i t (H_3)) &= \exp(- i t (c_4 P_4)) \exp(- i t (c_5 P_5)) \\ 
+\end{align}
 
-\end{observation}
+This is not et al, local Hamiltonian consist of mutually commuting Pauli terms provides us a lot of freedom
+to optimize the circuit. 
+Whatever we switch and reorder the Pauli terms in the applying trotter circuit,
+if the larger structure, $\exp(-it H_j) = \Pi_k \exp(-it c_jk P_jk)$, was preserved then, 
+the trotter error would be bounded while we reduce the number of gates in the implementation.
+Thus, we don't have to choose one between trotter error and large gate error
+to optimize the evolution circuit.
+
+\textbf{Note}: The partitioning the hamiltonian into large local terms does not yields the optimized 
+order in every situation. 
+The term $\alpha$ only indicates upper bound of the error. So, the minimum trotter error could be 
+worse than the arbitrary applying case. 
+In here, the main focus is reducing errors associated with gate operations by using minimum
+number of gates.
+
+\section{Mutually Commuting Paritition}
 
 
 \section{Optimizing a circuit with commuting pairs}
 
 Clique: optimal condition: sum $ \Sigma_{i} c_i \approx 0 $.
 
-\section{Pauli Frame method}
+\subsection{Pauli Frame method}
 
+The current stage does not treat the routine finding 
+optimal path search in Pauli Frame space.
+It is because that we have not much tools to deal the
 
+\begin{
 
 \section{Conclusion}
 
