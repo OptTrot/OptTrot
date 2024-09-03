@@ -14,3 +14,8 @@
 *.out
 *.gz
 *.so
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fdb_latexmk
