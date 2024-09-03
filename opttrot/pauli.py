@@ -51,6 +51,24 @@ else:
 #        if not isinstance(other, PauliPoly):
 #            return super().commute(other)
 #        return self._commute_vec(other.poly)
+def from_pstr(pstr, weight=1.0):
+    n = len(pstr)
+    nx = np.zeros(n) 
+    nz = np.zeros(n)
+    for i, p in enumerate(pstr):
+        if p =="I":
+            pass
+        elif p =="Z":
+            nz[i] = 1
+        elif p== "X":
+            nx[i] = 1
+        elif p =="Y":
+            nz[i] = 1
+            nx[i] = 1
+    base = 2**np.flip(np.arange(n))
+
+    return PauliElement(int((nx*base).sum()), int((nz*base).sum()), n, weight)
+
 
 class PauliPoly:
     def __init__(self, 
@@ -203,7 +221,7 @@ class PauliPoly:
 
         if commute_arr.max() == 1:
             return 1-(commute_arr)
-        return 1-(np_bitwise_count(commute_arr))%2
+        return 1-(np_bitwise_count(commute_arr.astype(int)))%2
     # Interface to other packages-----------------------------
     def to_pennylane(self, except_zero=True):
         from pennylane.pauli import PauliSentence

@@ -105,6 +105,7 @@ def pstr_commute(pa, pb):
 #------------------------
 #PauliElement
 #------------------------
+
 def pauli_to_pennylane(pauli:PauliElement, words:bool=False):
     from pennylane.pauli import string_to_pauli_word
     from pennylane import I, PauliX, PauliY, PauliZ
