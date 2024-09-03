@@ -210,7 +210,19 @@ def process_permutations(args):
         entangled_sets.update([p1, p2, p3, p4, p5, p6])
 
     return entangled_sets
-def run(N, ppols=2):
+
+def process_permutations_Z(args):
+    p, N = args
+    entangled_sets = set()
+    for i, j in permutations(range(N), 2):
+        p1 = p.copy()
+        p1.two_entangle(i, j, c_type=0)
+        entangled_sets.update([p1])
+
+    return entangled_sets
+
+
+def run(N, ppols=2, cx=False, dir="data"):
     pf = PauliFrame(N)
     Frames = [set([pf])]
     i=0
@@ -219,8 +231,10 @@ def run(N, ppols=2):
     num_core = ppols
     frames = set()
     frames = frames | (Frames[0])
+
+    process_func = process_permutations_Z if cx else process_permutations
     
-    with open(f"qubit{N}_PauliFrame.data", "wb") as file:
+    with open(f"{dir}\\qubit{N}_PauliFrame.data", "wb") as file:
             pickle.dump((N), file)
 
     for k in range(0, 15):
@@ -233,7 +247,7 @@ def run(N, ppols=2):
             #results = pool.starmap(process_permutations, [(p, N) for p in Frames[k]])
             with tqdm(total=len(Frames[0]), desc=f"Processing Frame {k}") as pbar:
                 # Use imap_unordered for real-time updates
-                for result in pool.imap_unordered(process_permutations, [(p, N) for p in Frames[0]]):
+                for result in pool.imap_unordered(process_func, [(p, N) for p in Frames[0]]):
                     if result in ith_set:
                         ends.append(result)
                     else:
@@ -244,17 +258,17 @@ def run(N, ppols=2):
         #    ith_set.update(result)
 
         print(len(ith_set))
-        with open(f"qubit{N}_{k}_PauliFrame.data", "wb") as file:
+        with open(f"{dir}\\qubit{N}_{k}_PauliFrame.data", "wb") as file:
             pickle.dump((i, ith_set), file)
 
-        with open(f"qubit{N}_{k}_PauliFrame_ends.data", "wb") as file2:
+        with open(f"{dir}\\qubit{N}_{k}_PauliFrame_ends.data", "wb") as file2:
             pickle.dump((i, ends), file2)
         
         Frames = [(ith_set)]
         if frames >= ith_set:
             break
         frames = frames | Frames[0]
-    with open(f"qubit{N}_PauliFrame.data", "+wb") as file:
+    with open(f"{dir}\\qubit{N}_PauliFrame.data", "+wb") as file:
         pickle.dump((-1, frames), file)
     return True
 
