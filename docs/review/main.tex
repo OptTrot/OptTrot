@@ -241,10 +241,78 @@ Clique: optimal condition: sum $ \Sigma_{i} c_i \approx 0 $.
 
 The current stage does not treat the routine finding 
 optimal path search in Pauli Frame space.
-It is because that we have not much tools to deal the
+It is because that we have not much tools to deal 
+find the path and weight between the given frames,
+excepting the dynamics programming approach.
 
-\begin{
+$I, Z$ family would be a good example to see the complxity
+of the problem.
+Consider that the local term of the Hamiltonian composite of $Z$ family.
+Then, for a given frame $B$ and suppose that we have to make next frame to have $P = IIZZ$.
+Since, we don't have to consider terms containing $X, Y$, we can simply write the term 
+as single column, and the required entanglement gate is $CX$ gate only.
 
+\begin{equation}
+    B = \begin{bmatrix}
+        ZZZI\\
+        ZZIZ\\
+        ZIZZ\\
+        IZZZ
+    \end{bmatrix}
+    \rightarrow B' = \begin{bmatrix}
+        IIZZ\\
+        \dots\\
+        \dots\\
+        \dots
+    \end{bmatrix}
+\end{equation}
+
+
+The answer is shotly applying a $CX$ gate on line 1 and 2.
+Now, let the representation as binary vector
+\begin{equation}
+B = \begin{bmatrix}
+    ZZZI\\
+    ZZIZ\\
+    ZIZZ\\
+    IZZZ
+\end{bmatrix} = \begin{bmatrix}
+    1110\\
+    1101\\
+    1011\\
+    0111
+\end{bmatrix} = 
+\begin{bmatrix}
+    \vec{w}_1\\
+    \vec{w}_2\\
+    \vec{w}_3\\
+    \vec{w}_4
+\end{bmatrix}
+\end{equation}
+
+Then the problem becomes the next statement.
+
+\begin{quotation}
+    \textit{Find the minimum size subgroup $\{w_k\} \subset B$ whose XOR products is $P$
+    where, }
+
+    \begin{equation}
+        P = \vec{w}_1^\wedge \vec{w}_2 
+    \end{equation}
+
+\end{quotation}
+
+
+
+More simply, it is equivalent with finding a binary vector $\vec{x} \in \{0, 1\}^N$ of 
+
+\begin{equation}
+    P = \otimes_{i=1}^N x_i \& \vec{w}_i
+\end{equation}
+
+There is not proper polynomial algorithm of the problem.(\textit{We might verify this statement!})
+In addition, the general local Hamiltonian terms are harder than the only Z-family cases.
+Every attempt would be an approximation unless the new frameworks are developed.
 \section{Conclusion}
 
 In the report, we overlook the trotter error affected by order and hamiltonian structure 
