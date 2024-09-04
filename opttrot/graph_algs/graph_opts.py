@@ -50,6 +50,8 @@ class DWave(MaxCliqueSolver):
 
         assert "token" in kwargs.keys(), "Token must be required to solve the problem."        
         self.dwave_client_kwargs = kwargs 
+
+        
     def solve_clique(self, g: rx.PyGraph, *args, **kwargs):
         G =nx.from_numpy_array(rx.adjacency_matrix(g))
         client = Client(**self.dwave_client_kwargs)
@@ -59,9 +61,7 @@ class DWave(MaxCliqueSolver):
         return sol
     
     def solve_via_clique(self, g: rx.PyGraph, *args, **kwargs):
-        from dwave.cloud import Client
         from dwave.system.samplers import DWaveCliqueSampler
-        from dwave.system.composites import EmbeddingComposite
         import dwave_networkx as dnx
 
         G =nx.from_numpy_array(rx.adjacency_matrix(g))
