@@ -5,11 +5,22 @@ Old: below
 
 # Implementation
 
+- Clique solver implementation for larger clique problem.
+  - The current implementation does not consider the accessible resource of the solver.
+  - In Kurita et al `Pauli String Partitioning Algorithm with the Ising Model for Simultaneous Measurements`, there was an advanced algorithm to solve larger clique problem with small clique solver.
+  - 
+
 - Larger element manipulation Python+PauliElement:
   - Qiskit implementation only treats the 64 number of qubits.
   - The PauliElement could handle the larger qubit system more faster than qiskit.
   - It is not ideal for future, but current implementation would be enough for hundreds qubit manipulation.
   - Slower than now but possible.
+
+
+## Done
+
+- CliqueSolver design:
+  - See `MaxCliqueSolver` class in `graph_opts.py`.
 
 - PauliElement list construction in C(Done).
   - See `pauli_bn_methods.c/.h`
