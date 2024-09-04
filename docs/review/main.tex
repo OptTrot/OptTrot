@@ -297,7 +297,7 @@ Then the problem becomes the next statement.
     where, }
 
     \begin{equation}
-        P = \vec{w}_1^\wedge \vec{w}_2 
+        P = \wedge_{k} \vec{w}_k 
     \end{equation}
 
 \end{quotation}
@@ -310,9 +310,18 @@ More simply, it is equivalent with finding a binary vector $\vec{x} \in \{0, 1\}
     P = \otimes_{i=1}^N x_i \& \vec{w}_i
 \end{equation}
 
-There is not proper polynomial algorithm of the problem.(\textit{We might verify this statement!})
+There is no proper polynomial algorithm of the problem
+\footnote{We might verify this statement!}.
 In addition, the general local Hamiltonian terms are harder than the only Z-family cases.
 Every attempt would be an approximation unless the new frameworks are developed.
+
+\begin{observation}
+For $N$ qubit system, the maximum size of mutually commuting Pauli subgroup, $P$, is $2^N$.
+Let $G \subset P$ be a generator of $P$ where, $\forall p \in P, \exists \{g_i\} \subset G$
+such that, $p = \wedge_i g_i$.
+\end{observation}
+
+
 \section{Conclusion}
 
 In the report, we overlook the trotter error affected by order and hamiltonian structure 
