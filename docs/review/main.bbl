@@ -1,27 +1,37 @@
 \begin{thebibliography}{1}
 
-\bibitem{Sperner1928NeuerBF}
-Emanuel Sperner.
-\newblock Neuer beweis f{\"u}r die invarianz der dimensionszahl und des gebietes.
-\newblock {\em Abhandlungen aus dem Mathematischen Seminar der Universit{\"a}t Hamburg}, 6:265--272, 1928.
+\bibitem{dewolf2023quantumcomputinglecturenotes}
+Ronald de~Wolf.
+\newblock Quantum computing: Lecture notes, 2023.
 
-\bibitem{Huang2004ONTS}
-Jonathan Huang.
-\newblock On the sperner lemma and its applications.
-\newblock 2004.
+\bibitem{Low_2019}
+Guang~Hao Low and Isaac~L. Chuang.
+\newblock Hamiltonian simulation by qubitization.
+\newblock {\em Quantum}, 3:163, July 2019.
 
-\bibitem{Wind_Wolf}
-Eric~W Weisstein.
-\newblock Contour winding number.
+\bibitem{PhysRevLett.114.090502}
+Dominic~W. Berry, Andrew~M. Childs, Richard Cleve, Robin Kothari, and Rolando~D. Somma.
+\newblock Simulating hamiltonian dynamics with a truncated taylor series.
+\newblock {\em Phys. Rev. Lett.}, 114:090502, Mar 2015.
 
-\bibitem{9736615}
-Yong Xu, Gang Chen, Jie Chen, and Li~Qiu.
-\newblock Argument principle and integral relations: Hidden links and generalized forms.
-\newblock {\em IEEE Transactions on Automatic Control}, 68(3):1831--1838, 2023.
+\bibitem{Berry_2014}
+Dominic~W. Berry, Andrew~M. Childs, Richard Cleve, Robin Kothari, and Rolando~D. Somma.
+\newblock Exponential improvement in precision for simulating sparse hamiltonians.
+\newblock In {\em Proceedings of the forty-sixth annual ACM symposium on Theory of computing}, STOC ’14. ACM, May 2014.
 
-\bibitem{10.1145/2699457}
-Piotr Kowalczyk.
-\newblock Complex root finding algorithm based on delaunay triangulation.
-\newblock {\em ACM Trans. Math. Softw.}, 41(3), jun 2015.
+\bibitem{childs_theory_2021}
+Andrew~M. Childs, Yuan Su, Minh~C. Tran, Nathan Wiebe, and Shuchen Zhu.
+\newblock Theory of {Trotter} {Error} with {Commutator} {Scaling}.
+\newblock {\em Physical Review X}, 11(1):011020, February 2021.
+
+\bibitem{nielsen2010quantum}
+M.A. Nielsen and I.L. Chuang.
+\newblock {\em Quantum Computation and Quantum Information: 10th Anniversary Edition}.
+\newblock Cambridge University Press, 2010.
+
+\bibitem{schmitz_graph_2023}
+Albert~T. Schmitz, Nicolas P.~D. Sawaya, Sonika Johri, and A.~Y. Matsuura.
+\newblock Graph {Optimization} {Perspective} for {Low}-{Depth} {Trotter}-{Suzuki} {Decomposition}, May 2023.
+\newblock arXiv:2103.08602 [cond-mat, physics:math-ph, physics:physics, physics:quant-ph].
 
 \end{thebibliography}

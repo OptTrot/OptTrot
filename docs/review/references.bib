@@ -63,3 +63,30 @@
    author={Berry, Dominic W. and Childs, Andrew M. and Cleve, Richard and Kothari, Robin and Somma, Rolando D.},
    year={2014},
    month=may, collection={STOC ’14} }
+
+
+  
+  @misc{schmitz_graph_2023,
+	title = {Graph {Optimization} {Perspective} for {Low}-{Depth} {Trotter}-{Suzuki} {Decomposition}},
+	url = {http://arxiv.org/abs/2103.08602},
+	abstract = {Hamiltonian simulation represents an important module in a large class of quantum algorithms and simulations such as quantum machine learning, quantum linear algebra methods, and modeling for physics, material science and chemistry. One of the most prominent methods for realizing the time-evolution unitary is via the Trotter-Suzuki decomposition. However, there is a large class of possible decompositions for the infinitesimal time-evolution operator as the order in which the Hamiltonian terms are implemented is arbitrary. We introduce a novel perspective for generating a low-depth Trotter-Suzuki decomposition assuming the standard Clifford+RZ gate set by adapting ideas from quantum error correction. We map a given Trotter-Suzuki decomposition to a constrained path on a graph which we deem the Pauli Frame Graph (PFG). Each node of the PFG represents the set of possible Hamiltonian terms currently available to be applied, Clifford operations represent a move from one node to another, and so the graph distance represents the gate cost of implementing the decomposition. The problem of finding the optimal decomposition is then equivalent to solving a problem similar to the traveling salesman. Though this is an NP-hard problem, we demonstrate the simplest heuristic, greedy search, and compare the resulting two-qubit gate count and circuit depth to more standard methods for a large class of scientifically relevant Hamiltonians, both fermionic and bosonic, found in chemical, vibrational and condensed matter problems which naturally scale. We find in nearly every case we study, the resulting depth and two-qubit gate counts are less than those provided by standard methods, by as much as an order of magnitude. We also find the method is efficient and amenable to parallelization, making the method scalable for problems of real interest.},
+	urldate = {2023-08-20},
+	publisher = {arXiv},
+	author = {Schmitz, Albert T. and Sawaya, Nicolas P. D. and Johri, Sonika and Matsuura, A. Y.},
+	month = may,
+	year = {2023},
+	note = {arXiv:2103.08602 [cond-mat, physics:math-ph, physics:physics, physics:quant-ph]},
+	keywords = {Quantum Physics, Physics - Computational Physics, Mathematical Physics, Condensed Matter - Materials Science, Pauli-Frame},
+	file = {arXiv Fulltext PDF:C\:\\Users\\cmat411a\\Zotero\\storage\\TPS93W9F\\Schmitz 등 - 2023 - Graph Optimization Perspective for Low-Depth Trott.pdf:application/pdf;arXiv.org Snapshot:C\:\\Users\\cmat411a\\Zotero\\storage\\9ESITMU3\\2103.html:text/html},
+}
+
+@book{nielsen2010quantum,
+  title={Quantum Computation and Quantum Information: 10th Anniversary Edition},
+  author={Nielsen, M.A. and Chuang, I.L.},
+  pages={210},
+  isbn={9781107002173},
+  lccn={2011290698},
+  url={https://books.google.co.kr/books?id=j2ULnwEACAAJ},
+  year={2010},
+  publisher={Cambridge University Press}
+}
