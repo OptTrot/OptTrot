@@ -1,4 +1,10 @@
-\begin{thebibliography}{1}
+\begin{thebibliography}{10}
+
+\bibitem{suzuki_finding_2005}
+Naomichi Hatano and Masuo Suzuki.
+\newblock Finding {Exponential} {Product} {Formulas} of {Higher} {Orders}.
+\newblock In R.~Beig, W.~Beiglb{\"o}ck, W.~Domcke, B.-G. Englert, U.~Frisch, P.~H{\"a}nggi, G.~Hasinger, K.~Hepp, W.~Hillebrandt, D.~Imboden, R.~L. Jaffe, R.~Lipowsky, H.~V. L{\"o}hneysen, I.~Ojima, D.~Sornette, S.~Theisen, W.~Weise, J.~Wess, J.~Zittartz, Arnab Das, and Bikas K.~Chakrabarti, editors, {\em Quantum {Annealing} and {Other} {Optimization} {Methods}}, volume 679, pages 37--68. Springer Berlin Heidelberg, Berlin, Heidelberg, November 2005.
+\newblock Series Title: Lecture Notes in Physics.
 
 \bibitem{dewolf2023quantumcomputinglecturenotes}
 Ronald de~Wolf.
@@ -33,5 +39,15 @@ M.A. Nielsen and I.L. Chuang.
 Albert~T. Schmitz, Nicolas P.~D. Sawaya, Sonika Johri, and A.~Y. Matsuura.
 \newblock Graph {Optimization} {Perspective} for {Low}-{Depth} {Trotter}-{Suzuki} {Decomposition}, May 2023.
 \newblock arXiv:2103.08602 [cond-mat, physics:math-ph, physics:physics, physics:quant-ph].
+
+\bibitem{sarkar_sets_2021}
+Rahul Sarkar and Ewout Van Den~Berg.
+\newblock On sets of maximally commuting and anticommuting {Pauli} operators.
+\newblock {\em Research in the Mathematical Sciences}, 8(1):14, March 2021.
+
+\bibitem{karp_reducibility_1972}
+Richard~M. Karp.
+\newblock Reducibility among {Combinatorial} {Problems}.
+\newblock In Raymond~E. Miller, James~W. Thatcher, and Jean~D. Bohlinger, editors, {\em Complexity of {Computer} {Computations}: {Proceedings} of a symposium on the {Complexity} of {Computer} {Computations}, held {March} 20–22, 1972, at the {IBM} {Thomas} {J}. {Watson} {Research} {Center}, {Yorktown} {Heights}, {New} {York}, and sponsored by the {Office} of {Naval} {Research}, {Mathematics} {Program}, {IBM} {World} {Trade} {Corporation}, and the {IBM} {Research} {Mathematical} {Sciences} {Department}}, pages 85--103. Springer US, Boston, MA, 1972.
 
 \end{thebibliography}
