@@ -1,6 +1,18 @@
 \relax 
 \providecommand\hyper@newdestlabel[2]{}
-\providecommand*\HyPL@Entry[1]{}
+\providecommand\HyperFirstAtBeginDocument{\AtBeginDocument}
+\HyperFirstAtBeginDocument{\ifx\hyper@anchor\@undefined
+\global\let\oldnewlabel\newlabel
+\gdef\newlabel#1#2{\newlabelxx{#1}#2}
+\gdef\newlabelxx#1#2#3#4#5#6{\oldnewlabel{#1}{{#2}{#3}}}
+\AtEndDocument{\ifx\hyper@anchor\@undefined
+\let\newlabel\oldnewlabel
+\fi}
+\fi}
+\global\let\hyper@last\relax 
+\gdef\HyperFirstAtBeginDocument#1{#1}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
 \citation{suzuki_finding_2005}
 \citation{dewolf2023quantumcomputinglecturenotes}
 \citation{Low_2019}
@@ -8,9 +20,11 @@
 \citation{Berry_2014}
 \citation{childs_theory_2021}
 \citation{nielsen2010quantum}
-\HyPL@Entry{0<</S/D>>}
 \@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
+\citation{johann_2023}
+\citation{PhysRevResearch.5.023146}
 \citation{schmitz_graph_2023}
+\citation{hyunseong_2023_8434890}
 \citation{childs_theory_2021}
 \providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
 \newlabel{fig:trotter_standard_circuit}{{\caption@xref {fig:trotter_standard_circuit}{ on input line 174}}{2}{Introduction}{figure.caption.1}{}}
@@ -23,16 +37,20 @@
 \citation{schmitz_graph_2023}
 \@writefile{toc}{\contentsline {section}{\numberline {3}Optimizing a circuit with commuting pairs}{4}{section.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Pauli Frame method}{4}{subsection.3.1}\protected@file@percent }
-\newlabel{fig:Pauli Frame}{{\caption@xref {fig:Pauli Frame}{ on input line 330}}{5}{Pauli Frame method}{figure.caption.2}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces  Example of Pauli Frame analysis of a quantum circuit. The dashed blue lines are corresponded to the below Pauli Frame. If we apply RZ gate on 5th qubit after we applied two CX gates, then the rotation gate is corresponding to $\exp (-i t Z_3Z_5)$. }}{5}{figure.caption.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Path search over commuting cliques}{5}{subsection.3.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.1}IZ family}{5}{subsubsection.3.2.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces  Relative error rate of random Hamiltonian, $H$. The red horizontal line is a largest local hamiltonian decomposition and the each sample are random order of $\exp (-i t P_l)$. }}{5}{figure.caption.2}\protected@file@percent }
+\newlabel{fig:evolve_error}{{2}{5}{Relative error rate of random Hamiltonian, $H$. The red horizontal line is a largest local hamiltonian decomposition and the each sample are random order of $\exp (-i t P_l)$}{figure.caption.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces  Example of Pauli Frame analysis of a quantum circuit. The dashed blue lines are corresponded to the below Pauli Frame. If we apply RZ gate on 5th qubit after we applied two CX gates, then the rotation gate is corresponding to $\exp (-i t Z_3Z_5)$. }}{5}{figure.caption.3}\protected@file@percent }
+\newlabel{fig:Pauli Frame}{{3}{5}{Example of Pauli Frame analysis of a quantum circuit. The dashed blue lines are corresponded to the below Pauli Frame. If we apply RZ gate on 5th qubit after we applied two CX gates, then the rotation gate is corresponding to $\exp (-i t Z_3Z_5)$}{figure.caption.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Path search over commuting cliques}{6}{subsection.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Symplectic representation of Pauli elements}{6}{subsection.3.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.3.1}IZ family}{6}{subsubsection.3.3.1}\protected@file@percent }
+\citation{schmitz_graph_2023}
 \citation{sarkar_sets_2021}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}General Commuting set}{7}{subsection.3.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}General Commuting set}{8}{subsection.3.4}\protected@file@percent }
 \citation{karp_reducibility_1972}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Summary of Clifford operator search process}{8}{subsection.3.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {4}Mutually Commuting Partition}{8}{section.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Solve clique problem on Quantum computer}{8}{subsection.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Summary of Clifford operator search process}{9}{subsection.3.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4}Mutually Commuting Partition}{9}{section.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Solve clique problem on Quantum computer}{9}{subsection.4.1}\protected@file@percent }
 \bibstyle{unsrt}
 \bibdata{references}
 \bibcite{suzuki_finding_2005}{1}
@@ -42,9 +60,12 @@
 \bibcite{Berry_2014}{5}
 \bibcite{childs_theory_2021}{6}
 \bibcite{nielsen2010quantum}{7}
-\bibcite{schmitz_graph_2023}{8}
-\bibcite{sarkar_sets_2021}{9}
-\bibcite{karp_reducibility_1972}{10}
-\@writefile{toc}{\contentsline {section}{\numberline {A}Proof of Modulo field}{9}{appendix.A}\protected@file@percent }
-\newlabel{appendix:modulo_field}{{A}{9}{Proof of Modulo field}{appendix.A}{}}
-\gdef \@abspage@last{10}
+\bibcite{johann_2023}{8}
+\bibcite{PhysRevResearch.5.023146}{9}
+\bibcite{schmitz_graph_2023}{10}
+\@writefile{toc}{\contentsline {section}{\numberline {A}Proof of Modulo field}{10}{appendix.A}\protected@file@percent }
+\newlabel{appendix:modulo_field}{{A}{10}{Proof of Modulo field}{appendix.A}{}}
+\bibcite{hyunseong_2023_8434890}{11}
+\bibcite{sarkar_sets_2021}{12}
+\bibcite{karp_reducibility_1972}{13}
+\gdef \@abspage@last{11}

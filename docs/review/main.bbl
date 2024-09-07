@@ -35,10 +35,24 @@ M.A. Nielsen and I.L. Chuang.
 \newblock {\em Quantum Computation and Quantum Information: 10th Anniversary Edition}.
 \newblock Cambridge University Press, 2010.
 
+\bibitem{johann_2023}
+Johann Ostmeyer.
+\newblock Optimised trotter decompositions for classical and quantum computing.
+\newblock {\em Phys. A: Math. Theor.}, 56(28), 2023.
+
+\bibitem{PhysRevResearch.5.023146}
+Conor Mc~Keever and Michael Lubasch.
+\newblock Classically optimized hamiltonian simulation.
+\newblock {\em Phys. Rev. Res.}, 5:023146, Jun 2023.
+
 \bibitem{schmitz_graph_2023}
 Albert~T. Schmitz, Nicolas P.~D. Sawaya, Sonika Johri, and A.~Y. Matsuura.
 \newblock Graph {Optimization} {Perspective} for {Low}-{Depth} {Trotter}-{Suzuki} {Decomposition}, May 2023.
 \newblock arXiv:2103.08602 [cond-mat, physics:math-ph, physics:physics, physics:quant-ph].
+
+\bibitem{hyunseong_2023_8434890}
+Kim Hyunseong.
+\newblock {Totter circuit optimization through adiabatic computer}, November 2023.
 
 \bibitem{sarkar_sets_2021}
 Rahul Sarkar and Ewout Van Den~Berg.

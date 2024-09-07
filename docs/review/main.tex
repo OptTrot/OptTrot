@@ -176,20 +176,17 @@ is often misinterpreted as a problem of Trotterization.
 \end{figure}
 
 How can we optimize the circuit synthesis for trotter evolution circuit?
-There have been various studies of circuit optimization, % 
-% 2023 J. Phys. A: Math. Theor. 56 285303
-% Conor Mc Keever and Michael Lubasch Phys. Rev. Research 5, 023146, Classically optimized hamiltonian simulation
+There have been various studies of circuit optimization\cite{johann_2023, PhysRevResearch.5.023146}
+but in here, the report is focusing especially for trotter circuit implementation. 
 
-but in here especially for trotter circuit. 
-
-Schmitz et al would be a milestone paper\cite{schmitz_graph_2023}.
+Schmitz et al would be a milestone paper\cite{schmitz_graph_2023} for the implementation.
 They analyzed what term would be rotated when we apply entanglement gates 
 on quantum circuit using Pauli Frame, and suggested a practical method to find a better depth
 evolution circuit of given hamiltonian. 
 However, the paper has some limitations in frame search methods,
 which is not practical for rapidly generating various hamiltonian circuits.
 In the library, we combine the tools with commuting partitioning method.
-Especially, we will focus on an attempt that author Kim's study, 
+Especially, we will focus on an attempt that author Kim's study\cite{hyunseong_2023_8434890}, 
 using commuting pair to reduce the circuit depth. 
 
 This report consist of 3 parts,
@@ -225,10 +222,11 @@ as a function of sequential commutator of local terms\cite{childs_theory_2021}.
     O(\alpha t^2)
 \end{equation}
 
-The results of Childs et al allow us to calculate 
+The result theorem of Childs et al allow us to calculate 
 the error boundary more precisely including a physical structure 
 of the given hamiltonian.
-
+Furthermore, the applying order effect of $\exp(-it H_l), H = \sum_L H_l$ 
+is well derived from the theorem.
 
 \begin{theorem}
     Let $H = \sum_i^N H_i$ be an operator consisting of $N$ sum of local hmailtonian,
@@ -301,7 +299,7 @@ However, Eq(\ref{eq:evolve_commute}) is just a re-ordering of Eq(\ref{eq:pauli_e
     \exp(- i t (H_3)) &= \exp(- i t (c_4 P_4)) \exp(- i t (c_5 P_5)) \\ 
 \end{align}
 
-This is not at all, local hamiltonian consist of mutually commuting Pauli terms provides us a lot of freedom
+This is not at all, local hamiltonian consists of mutually commuting Pauli terms provides us a lot of freedom
 to optimize the circuit. 
 Whatever we switch and reorder the Pauli terms in the applying trotter circuit,
 if the larger structure, $\exp(-it H_j) = \Pi_k \exp(-it c_jk P_jk)$, was preserved then, 
@@ -314,7 +312,17 @@ order in every situation.
 The term $\alpha$ only indicates upper bound of the error. So, the minimum trotter error could be 
 worse than the arbitrary applying case. 
 In here, the main focus is reducing errors associated with gate operations by using minimum number of gates.
+See, Fig \ref{fig:evolve_error}.
 
+\begin{figure}
+        \centering
+        \includegraphics[width=0.8\textwidth]{figures/error rates.png}
+        \caption{
+            Relative error rate of random Hamiltonian, $H$. 
+            The red horizontal line is a largest local hamiltonian decomposition and the each sample are random order of $\exp(-i t P_l)$.
+            }
+            \label{fig:evolve_error}
+\end{figure}
 
 \section{Optimizing a circuit with commuting pairs}
 
@@ -327,13 +335,13 @@ when we apply Rotation Z gate on the circuit.
 \begin{figure}
     \centering
     \includegraphics[width = 0.95\textwidth]{figures/Pauli Frame.png}
-    \label{fig:Pauli Frame}
     \caption{
         Example of Pauli Frame analysis of a quantum circuit. 
         The dashed blue lines are corresponded to the below Pauli Frame.
         If we apply RZ gate on 5th qubit after we applied two CX gates,
         then the rotation gate is corresponding to $\exp(-i t Z_3Z_5)$.
     }
+    \label{fig:Pauli Frame}
 \end{figure}
 
 Using the method, we can chase what Pauli elements were applied, 
@@ -358,13 +366,20 @@ transformation from $B_i$ to $B_j$?.
 There is no solid frameworks to make the transformation.
 The questions are remained from Schmitz et al paper.
 
-In here, if we found that the given Pauli elements are 
+In here, if we found that the route finding algorithm
+when the given Pauli elements are mutually commuting to each other.
 
 \subsection{Path search over commuting cliques}
 
+\subsection{Symplectic representation of Pauli elements}
+
+It is natural that the Pauli group is a kind of Clifford group of $Cl_{2,0}$,
+where two elements coud generate all elements.
+
 \subsubsection{IZ family}
 
-$I, Z$ family would be a good example to see the process of gate construction.
+$I, Z$ family would be a good example to see the process of gate construction
+over mutually commuting Pauli set.
 Consider that the local term of the hamiltonian are composite of $I, Z$ tensor product.
 Then, for a given frame $B$ and suppose that we have to make next frame to have $P = IIZZ$.
 Since, we don't have to consider terms containing $X, Y$, we can simply write the term 
@@ -549,10 +564,14 @@ The process reached the same point we had predicted at first.
     \end{pmatrix}
 \end{equation}
 
-The above process hold same for $X$ and $Y$ families each.
+The above process holds same for $X$ and $Y$ families each.
+Gauss elimination process is enough to determine the exact entanglement
+mapping.
 However, we cannot adopt the process to the general local terms.
-In that case, there are 5 number of entanglements gate to make 
-a Pauli terms from one frame to the other frame.
+Since, there is no guarantee that the CX gate is enough to 
+contruct Clifford gate that connects two given frames.
+Rhere are 5 number of entanglements gate to make 
+a Pauli terms from one frame to the other frame\cite{schmitz_graph_2023}.
 
 \begin{center}
     \begin{quantikz}
@@ -573,7 +592,7 @@ a Pauli terms from one frame to the other frame.
 
 
 However, if they were mutually commuting to each other,
-the above process could be applied to find a frame path.
+the above process could be applied to find a frame path in the commuting set.
 
 \subsection{General Commuting set}
 
@@ -608,12 +627,13 @@ commuting subsets of Pauli group on $N$ qubits system.
 
 
 \begin{lemma}
-    For a given generating set $G$ where $|G| = N$, 
+    For a given generating set $G$ of mutually commuting subgroup in $\mathcal{P}/K$, so that $|G| = N$, 
     if a Pauli element, $p$, is mutually commuting with $G$,
     then $p \in \langle G \rangle$.
 \end{lemma}
 
 \textbf{Proof}:
+If $p \in G$, it is done. Let $p \notin G$.
 Suppose $p \notin <G>$, then there is a element $g\in <G>$ such that
 $[p, g] \neq 0$. However, $g = n_1 g_1 \cdot n_2 g_2 \cdot \dots \cdot n_N g_N$, and 
 $[p, g_i] = 0, \forall i \in [N]$.
@@ -624,7 +644,7 @@ Therefore, $p \in \langle G \rangle$.
 \begin{corollary}
     For given two frames, $B_i, B_j$, if their stabilizers are mutually commuting,
     \begin{enumerate}
-        \item Their generating set is a subgroup of Pauli group.
+        \item They are minimum generating sets each for mutually commuting subgroup of $N$ qubit Pauli group.
         \item $\langle \mbox{Stab}(B_i)\rangle = \langle \mbox{Stab}(B_j)\rangle$
         \item These two frames are connected with a combination of CX gates.
     \end{enumerate}
@@ -632,6 +652,7 @@ Therefore, $p \in \langle G \rangle$.
 
 \textbf{Proof}: 
 By the lemma, all Pauli element in $\mbox{Stab}(B_j)$ are in $\langle \mbox{Stab}{B_i} \rangle$.
+So do, $\forall p \in \langle \mbox{Stab}(B_j)\rangle, p \in \langle \mbox{Stab}(B_i)\rangle$, and vice verse. 
 
 
 The above theorems guarantees that we can build Clifford operator 
