@@ -2,7 +2,7 @@
 \usepackage{geometry}
 \geometry{a4paper, margin=1in}
 
-\usepackage{amsmath, amssymb}
+\usepackage{amsmath, amssymb, amsthm}
 \newcommand{\rvline}{\hspace*{-\arraycolsep}\vline\hspace*{-\arraycolsep}}
 % See https://tex.stackexchange.com/questions/323297/typing-block-matrices-with-zero-blocks-and-separators
 \usepackage{tikz}
@@ -61,8 +61,10 @@
 \newtheorem{theorem}{Theorem}
 \newtheorem{lemma}{Lemma}
 \newtheorem{corollary}{Corollary}
+\newtheorem{claim}{Claim}
 \newtheorem{definition}{Definition}
 \newtheorem{observation}{Observation}
+\newtheorem{proposition}{Proposiiton}
 
 
 \begin{document}
@@ -123,7 +125,7 @@
 \end{center}
 
 
-%\tableofcontents
+\tableofcontents
 %wpage
 
 \section{Introduction}
@@ -132,7 +134,9 @@ Aim of the report is to introduce about theoretical backgrounds of
 OptTrot library. Why the library was developed, and how we can optimize 
 the circuit for time evolution with Trotterization method.
 In OptTrot, many optimization techniques were used to design and implement
-the library. Each 
+the library.
+Each part and structure are significantly important to accomplish the object 
+of the library, but the core part is a circuit synthesis algorithm. 
 
 Trotterization is a standard method used to implement a time evolution operator 
 by combining several local hamiltonian evolution operators.
@@ -142,6 +146,7 @@ and better bounds with higher order approximations\cite{suzuki_finding_2005}.
 
 \begin{equation}
     \lim_{n \rightarrow \infty} (e^{A/2} e^{B/2})^n = e^{A+B}
+    \label{eq:Trotterization}
 \end{equation}
 
 However, standard Trotterization method increases circuit depth with linear order 
@@ -189,12 +194,13 @@ In the library, we combine the tools with commuting partitioning method.
 Especially, we will focus on an attempt that author Kim's study\cite{hyunseong_2023_8434890}, 
 using commuting pair to reduce the circuit depth. 
 
-This report consist of 3 parts,
+This report consists of 5 parts,
 
 \begin{enumerate}
     \item Commuting partition effect on Trotter error.
     \item Pauli Frame method and their limitation.
     \item Pauli Frame method on mutually commuting partition. 
+    \item Pauli Frame method on general frames.
     \item Construction of mutually commuting partition.
 \end{enumerate}
 
@@ -324,13 +330,141 @@ See, Fig \ref{fig:evolve_error}.
             \label{fig:evolve_error}
 \end{figure}
 
-\section{Optimizing a circuit with commuting pairs}
+\section{Optimizing a circuit over commuting Pauli set}
+
+\subsection{Standard Trotterization}
+
+A standard method to implement time evolution of hamitonian $H$ requires next steps.
+
+\begin{enumerate}
+    \item If $H$ was given as a hermit matrix, decompose the hamiltonian as Pauli elements. $H \rightarrow \sum_i \lambda_i P_i$.
+    \item Construct an evolution circuit on quantum circuit for each Pauli element.
+    \item Concatenate circuits to approximate the $\exp(-it H /n) \approx \Pi_i \exp(-it \lambda P_i /n)$.
+    \item Repeat the result circuit of 3rd to reach $\exp(-itH) = \Pi_k^n \exp(-itH/n)$.
+\end{enumerate}
+
+For example, let the given hamiltonian as $H = ZZ + XX$.
+It is a 2 qubit system, and evolution circuits for each term are \cite{nielsen2010quantum}
+
+\begin{center}
+    $\exp(-it Z\otimes Z)= $
+    \begin{quantikz}
+        & \ctrl{1}& &\ctrl{1} &\\
+        & \targ{} & \gate{RZ}&\targ{} &
+    \end{quantikz}
+    ,
+    $\exp(-it X\otimes X)=$
+    \begin{quantikz}
+       \gate{H} & \ctrl{1}& &\ctrl{1} & \gate{H}\\
+       \gate{H}& \targ{} & \gate{RZ}&\targ{} &\gate{H}
+    \end{quantikz}
+\end{center}
+
+We can approximate the $\exp(-itH)$ as next circuit,
+
+\begin{center}
+    $\exp(-it H) \approx$
+    \begin{quantikz}
+        &\ctrl{1} &  &\ctrl{1}\slice{-}&\gate{H} & \ctrl{1}& &\ctrl{1} & \gate{H}\\
+        &\targ{}  & \gate{RZ} &\targ{}& \gate{H} & \targ{} & \gate{RZ}&\targ{} & \gate{H}
+    \end{quantikz}
+\end{center}
+
+If the required precision was higher than the above circuit, then using Eq (\ref{eq:Trotterization})
+we can raise the precision of the implementation.
+The method requires total circuit depth as $M$ times of single Pauli term circuit,
+when the given hamiltonian consists of $M$ number of Pauli terms.
 
 \subsection{Pauli Frame method}
 
-One method to optimize the Trotter circuit is using \textit{Pauli Frame}\cite{schmitz_graph_2023}.
+A question arises as \textit{when we apply some rotation gate on the empty wire 
+of single Pauli evolution circuit, what hamiltonian would be accomplished?}.
+More precisely, the next circuit is a modified $\exp(-itZ \otimes Z)$ operator.
+
+\begin{center}
+    $\exp(-it H) \approx $
+    \begin{quantikz}
+        &\ctrl{1} &\gate{H} &\gate{RZ}&\gate{H}  &\ctrl{1}&\\
+        &\targ{}  &         &\gate{RZ}&          &\targ{} &
+    \end{quantikz}
+\end{center}
+
+\begin{equation*}
+    H = ZZ + P_{unkonwn}
+\end{equation*}
+
+What is a $P_{unknown}$?
+The answer is $XX$. We can reduce the sequential Trotterized circuit 
+by the properties of Pauli terms.
+
+\begin{center}
+    \begin{quantikz}
+        &\ctrl{1} &  &\ctrl{1}\slice{-}&\gate{H} & \ctrl{1}& &\ctrl{1} & \gate{H}\\
+        &\targ{}  & \gate{RZ} &\targ{}& \gate{H} & \targ{} & \gate{RZ}&\targ{} & \gate{H}
+    \end{quantikz}
+    $\rightarrow$
+    \begin{quantikz}
+        &\ctrl{1} &\gate{H} &\gate{RZ}&\gate{H}  &\ctrl{1}&\\
+        &\targ{}  &         &\gate{RZ}&          &\targ{} &
+    \end{quantikz}
+\end{center}
+
+Recall that the physical meaning of commutation, $[P_i, P_j]$.
+Any two Pauli elements $P_i, P_j$, if they satisfy $[P_i, P_j] = 0$.
+It means we can manipulate $P_i$ observable without affecting to $P_j$ observable.
+In circuit aspect, the meaning is more direct. 
+We can prepare a circuit state which rotation gates act as an evolution operator of each Pauli element, simultaneously. 
+Therefore, commuting set of Pauli elements provides good properties to optimize Trotterized circuit.
+One method to accomplish the method is using \textit{Pauli Frame} representation of the circuit\cite{schmitz_graph_2023}.
 Pauli Frame is a collection of Pauli terms indicating axes on each quantum circuit wires
 when we apply Rotation Z gate on the circuit.
+
+\begin{definition}{Pauli frame}
+
+    For $N$ qubit system, Pauli Frame is a collection of $2N$ number of 
+    generalized Pauli elements, $B = (\{s_i\}_{i=1}^N, \{\tilde{s}_i\}_{i=1}^N), \forall i, s_i, \tilde{s}_i \in \mathcal{P}$,
+    satisfying the next conditions.
+
+    \begin{enumerate}
+            \item $[s_i, s_j] = 0 \,\forall i, j \in [N]$
+            \item $[s_i, \tilde{s}_i] \neq 0 \, \forall i \in [N]$
+            \item $[s_i, \tilde{s}_j] = 0 \, \forall i\neq j$
+    \end{enumerate}
+
+    \begin{equation*}
+        B = \begin{bmatrix}
+            s_1 &, & \tilde{s}_1 \\
+            s_2 &, & \tilde{s}_2 \\
+            \vdots  &,&\vdots   \\
+            s_N &, & \tilde{s}_N \\
+        \end{bmatrix}
+    \end{equation*}
+
+    $\{s_i\}$ is called by \textit{stabilizer}, and $\{\tilde{s}_i\}$ is called by \textit{destabilizer}. 
+\end{definition}
+
+The clifford gates act as a transformation of one frame to another frame.
+That is the frame structure is closed under clifford gates.
+The closeness and detailed properties were proved in the original paper\cite{schmitz_graph_2023}.
+Description for all detail is not wise but, the operation of basic Clifford gates $[CX, H, S]$
+is worth to note here.
+
+\begin{equation}
+    CX_{ij} = \begin{cases}
+        s_j =& s_i + s_j\\
+        \tilde{s}_i =& \tilde{s}_i + \tilde{s}_j
+    \end{cases},
+    H_i =  \begin{cases}
+        s_i =& \tilde{s}_i\\
+        \tilde{s}_i =&s_i 
+    \end{cases},
+    S_i =  \begin{cases}
+        \tilde{s}_i =&s_i + \tilde{s}_i  
+    \end{cases},
+    S^\dagger_i = \begin{cases}
+        \tilde{s}_i =& \tilde{s}_i  + s_i
+    \end{cases},
+\end{equation}
 
 \begin{figure}
     \centering
@@ -346,37 +480,122 @@ when we apply Rotation Z gate on the circuit.
 
 Using the method, we can chase what Pauli elements were applied, 
 and what elements we can rotate on the circuit.
+Fig \ref{fig:Pauli Frame} is an example of chasing Pauli terms on the circuit.
+Furthermore, if we analyze two evolution circuits of $H = ZZ + XX$ hamiltonian,
+with Pauli frame method, then the gates are classified as Fig \ref{fig:pauli_frame_analy_1}, \ref{fig:pauli_frame_analy_2}.
+Comparing the two figures, we can observe a \textit{frame path},
+
+\begin{enumerate}
+    \item $B_0 \rightarrow B_1 \rightarrow B_2 \rightarrow B_0$
+    \item $B_0 \rightarrow B_3 \rightarrow B_0$
+\end{enumerate}
 
 
-The original paper formulated the problem as 
-Traversal purchaser problem(TPP)\cite{schmitz_graph_2023}.
-However, they did not solve the TPP problem and 
-used a dynamic programming method to find a proper frame path.
-In other word, they manually searched all possible routine
-for the given hamiltonian.
+\begin{figure}[!ht]
+    \centering
+    \begin{quantikz}
+        \slice{$B_0$}&  &\ctrl{1}\gategroup[2, steps=1]{Clifford} &\slice{$B_1$} & &\ctrl{1}\gategroup[2, steps=3]{Clifford}&\gate{H} & \ctrl{1}& \slice{$B_2$} & &\ctrl{1} \gategroup[2, steps=2]{Clifford}& \gate{H} & \slice{$B_0$}&\\
+                     &  & \targ{}                                 & \gate{RZ}    & &\targ{}                                 &\gate{H} & \targ{} & \gate{RZ}     & &\targ{}   & \gate{H}& &
+    \end{quantikz} 
+    
+    \begin{equation*}
+        \begin{bmatrix}
+            IZ & , & IX\\
+            ZI & , & XI\\
+        \end{bmatrix} \rightarrow 
+        \begin{bmatrix}
+            IZ & , & XX\\
+            \textbf{ZZ} & , & XI\\
+        \end{bmatrix} \rightarrow
+        \begin{bmatrix}
+            IX & , & ZZ\\
+            \textbf{XX} & , & ZI\\
+        \end{bmatrix} \rightarrow
+        \begin{bmatrix}
+            IZ & , & IX\\
+            ZI & , & XI\\
+        \end{bmatrix}
+    \end{equation*}
+
+    \caption{Pauli frame analysis of standard Trotterized circuit of $H = ZZ +XX$.}
+    \label{fig:pauli_frame_analy_1}
+\end{figure}
+
+
+\begin{figure}[!ht]
+    \centering
+    \begin{quantikz}
+        \slice{$B_0$}& &\ctrl{1}\gategroup[2, steps=2]{Clifford} &\gate{H} &\slice{$B_3$}&\gate{RZ} &&\gate{H} \gategroup[2, steps=2]{Clifford} &\ctrl{1}& &\slice{$B_0$} &\\
+                     & &\targ{}                                  &         &&\gate{RZ}              &&                             &\targ{} & &              &
+    \end{quantikz}
+
+    \begin{equation*}
+        \begin{bmatrix}
+            IZ & , & IX\\
+            ZI & , & XI\\
+        \end{bmatrix} \rightarrow 
+        \begin{bmatrix}
+            \textbf{XX} & , & IZ\\
+            \textbf{ZZ} & , & XI\\
+        \end{bmatrix} \rightarrow
+        \begin{bmatrix}
+            IZ & , & IX\\
+            ZI & , & XI\\
+        \end{bmatrix}
+    \end{equation*}
+    \caption{Pauli frame analysis of optimized Trotterized circuit of $H = ZZ +XX$.}
+    \label{fig:pauli_frame_analy_2}
+\end{figure}
+
+The optimization direction is clear now. 
+
+\begin{proposition}
+    For given $H$ consists of $M$ number of Pauli terms, find a sequence of Pauli frames $\{B_i\}_{i=1}^N$
+    minimizing number of clifford operation to take the path defined by the sequence.
+\end{proposition}
+
+
+The original paper formulated the problem with \textit{relative support} as measure\cite{schmitz_graph_2023}.
+With the measure, we can find a minimum entanglement gates to change to frame to rotate a new Pauli element.
+However, the problem was identified as Traversal purchaser problem(TPP)\cite{schmitz_graph_2023}.
+It is a well-known NP-hard problem so the authors did not directly solve the TPP problem.
+Meanwhile, they adopted a dynamic programming method to find a proper frame path.
+Their method did not use a set of specific frames and distances between the set.
 There are two major reasons.
 To calculate a distance between two frames, $B_i, B_j$, we have to know
 all Frame information before we calculate.
-However, what frame would be sufficient to represent a trotter path 
-for the hamiltonian composites with entanglement gates?.
+However, what frames would be sufficient set to represent an optimized Trotter path 
+for the hamiltonian?
 We cannot know the solution of such problem when arbitrary hamiltonian was given.
 The only thing we have is a set of Pauli elements given by the hamiltonian.
 Moreover, when two frames were given, what Clifford gates would yield the 
-transformation from $B_i$ to $B_j$?.
-There is no solid frameworks to make the transformation.
-The questions are remained from Schmitz et al paper.
+transformation from $B_i$ to $B_j$?
 
-In here, if we found that the route finding algorithm
-when the given Pauli elements are mutually commuting to each other.
+\begin{equation*}
+    B_i \rightarrow_{clifford} B_j
+\end{equation*}
 
-\subsection{Path search over commuting cliques}
+There was no solid process to make the transformation with optimized 
+number of basic gates.
+The questions are still remained from Schmitz et al paper.
+Even though the restrictions, their dynamic programming method was practically enough, to generate
+optimized low-order Suzuki Trotterized circuit for the given hamiltonian\cite{schmitz_graph_2023}.
+
+
+In the report, the author followed Schmitz et al perspective in the problem,
+however, the direction of solution would be different.
+We can construct a required Clifford transformation consists of $\{CX, H, S\}$
+gates.
 
 \subsection{Symplectic representation of Pauli elements}
 
 It is natural that the Pauli group is a kind of Clifford group of $Cl_{2,0}$,
-where two elements coud generate all elements.
+where two elements could generate all elements.
 
-\subsubsection{IZ family}
+
+\subsection{Clifford transformation over commuting cliques}
+
+\subsubsection{Over IZ family}
 
 $I, Z$ family would be a good example to see the process of gate construction
 over mutually commuting Pauli set.
@@ -466,7 +685,6 @@ Suppose that we have circuit of the state where the Pauli Frame representation w
         w_4 &= Z_1Z_2Z_3 &= IZZZ &= 0111_{sym}\\
     \end{matrix}
 \end{equation}
-
 and we want to apply $\exp(-i t Z1Z2)$ gate on circuit, what CX gate combination yieds
 the quantum circuit state for the unitary operator, by simply applying RZ gate on a wire?
 Luckily, XOR is commute as like the CX gate becomes a conjugation of itself.
@@ -537,6 +755,7 @@ Thus, we get $x = [1, 1, 0, 0]$, and
 
 It means that CX over 1st and 2nd yields $Z1Z2 = IIZZ$ Pauli element on the frame.
 The process reached the same point we had predicted at first.
+You can observe same process in linear reversible circuit generation\cite{10.1145/3474226}.
 
 
 \begin{center}
@@ -570,10 +789,11 @@ mapping.
 However, we cannot adopt the process to the general local terms.
 Since, there is no guarantee that the CX gate is enough to 
 contruct Clifford gate that connects two given frames.
-Rhere are 5 number of entanglements gate to make 
+There are 5 number of entanglements gate to make 
 a Pauli terms from one frame to the other frame\cite{schmitz_graph_2023}.
 
-\begin{center}
+\begin{figure}[!ht]
+    \centering
     \begin{quantikz}
         &\ctrl{1}& \ctrl{1}      &\ctrl{1}     &\\
         &\targ{} & \phase{}    &\push{\odot} &
@@ -588,51 +808,97 @@ a Pauli terms from one frame to the other frame\cite{schmitz_graph_2023}.
         &\push{\odot} \wire[d][1]{a}&\\
         &\push{\odot} & 
     \end{quantikz}
-\end{center}
+    \caption{Type of entanglement gate from the left top, Controlled-X, Controlled-Z, Controlled-Y, XControlled-X, XControlled-Y, YControlled-Y.}
+    \label{fig:engtanglement_gates}
+\end{figure}
 
+To expand the result to the general commuting Pauli set.
+Several properties are needed to guarantee the validation 
+of the algorithm.
 
-However, if they were mutually commuting to each other,
-the above process could be applied to find a frame path in the commuting set.
+\subsubsection{General Commuting set}
 
-\subsection{General Commuting set}
+To ensure the algorithm is valid for general mutually commuting set,
+the next thing must be guaranteed.
+When two Pauli frames $B_1, B_2$ were given whose stabilizers are 
+mutually commuting to each other, then
+\textit{all members of second stabilizer could be generated by first stabilizer.}
 
-\begin{theorem}
-In $N$ qubit system, for a given Pauli term, $p$, and Pauli frame, $B$,
-if $p$ is commute with all terms in stabilizers of $B$, $\{s_i\}_{i=1}^N$,
-then a frame $B'$ where $p \in \mbox{Stab}(B')$ is derived 
-from $B$ at most $N-1$ number of CX gates.
-
-\begin{equation}
-    B_0 \rightarrow B'
-\end{equation}
-\end{theorem}
 %the maximum size of mutually commuting Pauli subgroup, $P$, is $2^N$.
 %Let $G \subset P$ be a generator of $P$ where, $\forall p \in P, \exists \{g_i\} \subset G$
 %such that, $p = \wedge_i g_i$.
 %Then, any set of Pauli elements on Frame 
 %\end{theorem}
 
-To prove the theorem, we need next theorems\cite{sarkar_sets_2021} about 
-commuting subsets of Pauli group on $N$ qubits system.
 
-\begin{theorem}
-    For $N$ qubits system, generalized Pauli group, $\mathcal{P}/K$, on the space satisfies the next,
+
+
+To prove the property, we need some theorems\cite{sarkar_sets_2021} about 
+commuting subsets of Pauli group on $N$ qubits system, and general properties of generating sets and definitions\cite{zeigler_maximally_1974}.
+
+\begin{theorem}[Properties of Pauli group]
+    For $N$ qubits system, generalized Pauli group, $\mathcal{P}/U(1)$, on the space satisfies the next,
 
     \begin{itemize}
-        \item A cardinality of maximally commuting subset of $\mathcal{P}/K$ is $2^N$.
-        \item A maximally commuting subset be a subgroup.
-        \item For subgroup $S \subset \mathcal{P}/K, |S| = 2^l$, it's generating set $G$ always exists and $|G| \geq l$.
+        \item A cardinality of maximally commuting subset of $\mathcal{P}/U(1)$ is $2^N$.
+        \item A maximally commuting subset be a subgroup of $\mathcal{P}/U(1)$.
+        \item For a subgroup $S \subset \mathcal{P}/U(1), |S| = 2^l$, it's generating set $G$ always exists and $|G| \geq l$.
     \end{itemize}
 \end{theorem}
 
+\begin{definition}[Finite generarting set]
+    For a group, $(G, +)$, a generating set $X$ of group $G$ is a finite subset $X \subset G, |X| = N$ such that
+    $\forall g \in G, g = \sum_{i=1}^N n_i x_i, x_i \in X$, $n_i \in \mathbb{N}$.
+\end{definition}
+
+\begin{definition}[Independent set]
+    A subset $X$ of group $S$ is independent if none of its members can be generated by the others.
+\end{definition}
+
+\begin{definition}[Exchange property]
+    A group, $G$, has an exchange property. 
+    If $y \in G$ is not generated by a subset $X\subset G$,
+    but generated by $X \cup \{z\}, \, z\in G$ then $z$ is generated by $X \cup \{y\}$.
+\end{definition}
+
+\begin{theorem}
+        \label{theorem:generating_independent_set}
+        Let $G$ be a generating set.
+
+        \begin{enumerate}
+            \item $G$ is a minimal generating set iff $G$ is a maximally independent set.
+            \item A maximally independent subset, $S$, of group, $P$, is a minimal generating set. If generates satisfies exchange property.  
+        \end{enumerate}
+\end{theorem}
+
+Using the cardinality and generating set property, the next corollary is achieved.
+
+Based on the theorems, a finite Abelian group hold the next lemma.
+\begin{lemma}
+    \label{lemma:exchange_property}
+    A finite Abelian group whose elements are inverse of themselves each has exchange property.
+\end{lemma}
+\begin{proof}
+        Suppose it is not, then for a finite Abelian group $A$, $\exists y, z \in A$, and finite non-zero sub set $X \subset A, |X| = N \in \mathbb{N}$. 
+        They satisfy $y = n_0 z + n_1 x_1 + \cdots + n_N x_N, x_i \in X \forall i$, and $z \neq n'_0 y + n'_1 x_1 + \cdots n'_N x_N$.
+        However, adding $y + n_0 z$ to the RHS and LHS of the first equation yields 
+        $y + n_1 x_1 + \cdots + n_N x_N = n_0 z$.
+        Since, finite Abelian group is a cyclic group, $\exists M \in \mathbb{N}$ such that
+        $M (n_0 z) = z, \bot$.
+        Therefore, a finite Abelian group has an exchange property.
+\end{proof}
+
+
 
 \begin{lemma}
-    For a given generating set $G$ of mutually commuting subgroup in $\mathcal{P}/K$, so that $|G| = N$, 
-    if a Pauli element, $p$, is mutually commuting with $G$,
+    \label{lemma:element_in_commuting}
+    For a given generating set $G$ of mutually commuting subgroup in $\mathcal{P}/U(1)$, where $|G| = N$.
+    If a Pauli element, $p$, is commuting with $G$,
     then $p \in \langle G \rangle$.
 \end{lemma}
 
-\textbf{Proof}:
+\begin{proof}
+
 If $p \in G$, it is done. Let $p \notin G$.
 Suppose $p \notin <G>$, then there is a element $g\in <G>$ such that
 $[p, g] \neq 0$. However, $g = n_1 g_1 \cdot n_2 g_2 \cdot \dots \cdot n_N g_N$, and 
@@ -641,33 +907,111 @@ In addition, $[p, g_i g_j] =0$ if $[p, g_i] =0$ and $[p, g_j]=0$.
 Thus, $[p, n_1 g_1 \cdot n_2 g_2 \cdots \dots \cdots n_N g_N] =0, \!$.
 Therefore, $p \in \langle G \rangle$.
 
+\end{proof}
+
+Now, we can derive the result. For given two frames, $B_i, B_j$, 
+Let their stabilizer as $\mbox{Stab}(B_i), \mbox{Stab}(B_i)$.
+Let their stabilizers are mutually commuting.
+Let a generated subgroup of generating set $G$ as $\langle G \rangle$.
+
+\begin{theorem}
+    The stabilizer of frame $B$ is a minimum generating set of maximally mutually subgroup of $N$ qubit Pauli group, $\mathcal{P}/U(1)$.
+\end{theorem}
+\begin{proof}
+    Suppose that $\mbox{Stab}(B)$ is a dependent commuting set of Pauli elements.
+    $\exists a, b, c \in \mbox{Stab}(B)$ such that $[a,b] = [b,c] = [a,c] = 0$ but, $c = a+b$.
+    From frame representation of $2N$ element, let the index of $a, b, c$ as $i, j, k$.
+
+    \begin{equation*}
+        B = \begin{bmatrix}
+            \vdots & \vdots\\
+            a & \tilde{s}_a\\
+            b & \tilde{s}_b\\
+            c & \tilde{s}_c\\
+            \vdots & \vdots\\
+        \end{bmatrix}
+        \rightarrow_{CX _{ij}}
+        B' = \begin{bmatrix}
+            \vdots & \vdots\\
+            a & \tilde{s}_a + \tilde{s}_b\\
+            c & \tilde{s}_b\\
+            c & \tilde{s}_c\\
+            \vdots & \vdots\\
+        \end{bmatrix}
+    \end{equation*}
+
+    $[s_j, \tilde{s}_k] \neq 0 \bot$. Therefore, $\mbox{Stab}(B)$ is an independent set.
+    For $N$ qubit Pauli group, the cardinality of maximally independent set is $N$,
+    and $|\mbox{Stab}(B)|=N$, so that it is a maximally independent subset of $\mathcal{P}/U(1)$.
+    Since, $\mathcal{P}/U(1)$ has an exchange property by Lemma \ref{lemma:exchange_property}, it is a minimal generating set of mutually commuting subgroup, $\because $ Thm \ref{theorem:generating_independent_set}.
+\end{proof}
+
 \begin{corollary}
-    For given two frames, $B_i, B_j$, if their stabilizers are mutually commuting,
-    \begin{enumerate}
-        \item They are minimum generating sets each for mutually commuting subgroup of $N$ qubit Pauli group.
-        \item $\langle \mbox{Stab}(B_i)\rangle = \langle \mbox{Stab}(B_j)\rangle$
-        \item These two frames are connected with a combination of CX gates.
-    \end{enumerate}
+    Let two Pauli frames, $B_1, B_2$. 
+    If a union of their stabilizers is mutually commuting set,
+    then $\langle \mbox{Stab}(B_1) \rangle = \langle \mbox{Stab}(B_2) \rangle$.
 \end{corollary}
-
-\textbf{Proof}: 
-By the lemma, all Pauli element in $\mbox{Stab}(B_j)$ are in $\langle \mbox{Stab}{B_i} \rangle$.
+\begin{proof}  
+    By the theorem, $\mbox{Stab}(B_1)$, $\mbox{Stab}(B_2)$ are minimal generating set of maximal mutually commuting subgroup. 
+    $\because$ Lemma \ref{lemma:element_in_commuting}, All Pauli element in $\mbox{Stab}(B_j)$ are in $\langle \mbox{Stab}{B_i} \rangle$.
 So do, $\forall p \in \langle \mbox{Stab}(B_j)\rangle, p \in \langle \mbox{Stab}(B_i)\rangle$, and vice verse. 
+\end{proof}
 
-
-The above theorems guarantees that we can build Clifford operator 
-with only a combination of CX gates. 
+The above theorems guarantee that we can build Clifford transformation
+of $B_1$, and $B_2$ with only a combination of CX gates. 
 In the end, the exact route to get each term in the stabilizer of $B_2$
+by LU decomposition.
 
+As a side, not for two frames, but for a frame and a Pauli element, the next lemma hold true.
+
+\begin{lemma}
+    In $N$ qubit system, for a given Pauli term, $p$, and Pauli frame, $B$,
+    if $p$ is commute with all terms in stabilizers of $B$, $\{s_i\}_{i=1}^N$,
+    then a frame $B'$ where $p \in \mbox{Stab}(B')$ is derived 
+    from $B$ at most $N-1$ number of CX gates.
+    
+    \begin{equation}
+        B_0 \rightarrow B'
+    \end{equation}
+\end{lemma}
+
+The one thing we need to synthesis circuit, LU decomposition of 
+general Pauli elements. In $IZ$ element, the elimination process is 
+directly corresponded to the $z$ binary vectors.
+However, the general case the element is defined with two binary vectors, $x, z$.
+In that case, using a stacked two linear equation is enough to get a solution.
+
+$B = [\{(x_i, z_i)\}_{i=1}^N, \cdot], \, p = (x, z)$
+
+\begin{equation}
+    \begin{bmatrix}
+        M_x & \rvline & x\\
+        \hline
+        M_z & \rvline & z\\
+    \end{bmatrix}
+\end{equation}
+where, $M_x = [x_1| x_2 | \cdots | x_N], M_z = [z_1| z_2 | \cdots | z_N]$.
 
 \subsection{Summary of Clifford operator search process}
 
 Condition: For given two frames, $B_1, B_2$, $\lambda(\mbox{Stab}(B_1), \mbox{Stab}(B_1)) = 0$
 
 \begin{enumerate}
-    \item Calculate the $\oplus, \mbox{Stab}(B_1)$ representation of $p$, $\forall p \in \mbox{Stab}(B_2)$, using RRE over $\mathbb{Z}/2 \mathbb{Z}$.
-    \item 
+    \item Calculate the $\oplus, \mbox{Stab}(B_1)$ representation of $p = \vec{b}_p$, $\forall p \in \mbox{Stab}(B_2)$, using RRE over $\mathbb{Z}/2 \mathbb{Z}$.
+    \item Find a transformation matrix using LU or UL decomposition of matrix consists of $\vec{b}_p$.
+    \item Convert the two $L, U$ matrices as CNOT gates, UL or LU decomposition whose circuit length is shorter than the other.
 \end{enumerate}
+
+\section{Expansion to the general frames}
+
+The previous section we only described a case that the Clifford transformation
+was a composite of only $CX$ gate.
+
+\subsection{Qubit decomposed frame}
+
+\begin{theorem}
+    Qubit decomposed frame.
+\end{theorem}
 
 
 
@@ -721,8 +1065,7 @@ Denote, XOR($\wedge$) as $\oplus$ and, AND($\&$) as $\odot$,
         0 \oplus 1 & = &1\\
         1 \oplus 0 & = &1\\
         1 \oplus 1 & = &0\\
-    \end{matrix}
-    \, 
+    \end{matrix},\,
     \begin{matrix}
         0 \odot 0 & = &0\\
         0 \odot 1 & = &0\\
