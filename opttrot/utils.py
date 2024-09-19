@@ -28,6 +28,12 @@ def np_bitwise_count(arr:np.ndarray)->np.ndarray:
     else:
         return _bitwise_count_c(arr)
 
+
+# Minor utils
+
+def int2bin(i, width):
+    return np.array(list(np.binary_repr(i, width=width)), dtype=int)
+
 # Matrix-Tensor operators
 def krons(*oper_list)->np.matrix:
     """Kronecker product(=Tensor product of matrix).

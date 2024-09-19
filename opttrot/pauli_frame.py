@@ -2,7 +2,7 @@ from copy import copy
 
 import numpy as np
 from .pauli_utils import sym_code2pstr
-
+from .utils import int2bin
 
 class PauliFrame:
     def __init__(self, n):
@@ -45,7 +45,14 @@ class PauliFrame:
     @property
     def matrix(self):
         return np.hstack([self.front, self.back])
-    
+    @property
+    def aug_matrices_front(self):
+        front_x = np.vstack([int2bin(x, self.qubit) for x in self.front[:, 0]])
+        front_x = np.flip(front_x, axis=0)
+        front_z = np.vstack([int2bin(z, self.qubit) for z in self.front[:, 1]])
+        front_z = np.flip(front_z, axis=0)
+        return front_x.T, front_z.T
+
     def relative_supp(self, p, count="both"):
         supp = 0
         if count=="both":
