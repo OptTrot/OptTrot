@@ -10,7 +10,7 @@ class PauliFrame:
 
         self.front = np.vstack([np.zeros(self.qubit), 2**np.arange(self.qubit)]).T.astype(int)
         self.back  = np.vstack([2**np.arange(self.qubit), np.zeros(self.qubit)]).T.astype(int)
-        self.sign = np.ones(self.qubit, dtype=int)
+        self.sign = np.ones(self.qubit, 2, dtype=int)
 
         self.history = []
     def __repr__(self):
@@ -87,6 +87,9 @@ class PauliFrame:
     def h(self, i):
         self.back[i][0], self.front[i][0] = self.front[i][0], self.back[i][0]
         self.back[i][1], self.front[i][1] = self.front[i][1], self.back[i][1]
+
+        self.sign[i][0], self.sign[i][1] = self.sign[i][1], self.sign[i][0]
+
     def s(self, i):
         si, si_t = (self.front[i][0], self.front[i][1]), (self.back[i][0], self.back[i][1])
         new_si_t, _ = self._product(si, si_t)
@@ -95,8 +98,7 @@ class PauliFrame:
         pass
     def s_d(self, i):
         self.s(i)
-        self.sign[i] *= -1  
-        pass 
+        self.sign[i, 1] = -self.sign[i, 1]  
     def _commute(self, p1, p2):
         nx1, nz1 =  p1
         nx2, nz2 =  p2
