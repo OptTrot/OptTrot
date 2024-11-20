@@ -54,10 +54,20 @@ Albert~T. Schmitz, Nicolas P.~D. Sawaya, Sonika Johri, and A.~Y. Matsuura.
 Kim Hyunseong.
 \newblock {Totter circuit optimization through adiabatic computer}, November 2023.
 
+\bibitem{10.1145/3474226}
+Timoth\'{e}e~Goubault De~Brugi\`{e}re, Marc Baboulin, Beno\^{\i}t Valiron, Simon Martiel, and Cyril Allouche.
+\newblock Gaussian elimination versus greedy methods for the synthesis of linear reversible circuits.
+\newblock {\em ACM Transactions on Quantum Computing}, 2(3), sep 2021.
+
 \bibitem{sarkar_sets_2021}
 Rahul Sarkar and Ewout Van Den~Berg.
 \newblock On sets of maximally commuting and anticommuting {Pauli} operators.
 \newblock {\em Research in the Mathematical Sciences}, 8(1):14, March 2021.
+
+\bibitem{zeigler_maximally_1974}
+Bernard~P. Zeigler.
+\newblock Maximally independent sets, minimal generating sets, and irreducibles.
+\newblock {\em Mathematical systems theory}, 8(2):176--181, June 1974.
 
 \bibitem{karp_reducibility_1972}
 Richard~M. Karp.

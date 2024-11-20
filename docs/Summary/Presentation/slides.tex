@@ -1,0 +1,113 @@
+% Copyright (c) 2022 by Lars Spreng
+% This work is licensed under the Creative Commons Attribution 4.0 International License. 
+% To view a copy of this license, visit http://creativecommons.org/licenses/by/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
+
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+% You can add your packages and commands to the loadslides.tex file. 
+% The files in the folder "styles" can be modified to change the layout and design of your slides.
+% I have included examples on how to use the template below. 
+% Some of these examples are taken from the Metropolis template.
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+\documentclass[
+11pt,notheorems,hyperref={pdfauthor=Hyunseong Kim}
+]{beamer}
+
+\usepackage{graphicx}       % graphics
+\graphicspath{{media/}}     % organize your images and other figures under media/ folder
+\newcommand{\braket}[2]{\left \langle #1 \middle| #2 \right \rangle}
+\newcommand{\braketmatrix}[3]{\left \langle #1 \middle| #2 \middle| #3 \right \rangle}
+\usepackage{braket}
+\usepackage{tikz}
+\usetikzlibrary{quantikz2}
+\usetikzlibrary{shapes.geometric}
+\usetikzlibrary{3d}
+\usepackage{tikz-3dplot}
+\tdplotsetmaincoords{60}{45}
+\usepackage{pgf}
+\usepackage{pgfmath}
+\usetikzlibrary{shapes.geometric, math}
+\input{loadslides.tex} % Loads packages and some defined commands
+
+\newcommand{\rvline}{\hspace*{-\arraycolsep}\vline\hspace*{-\arraycolsep}}
+
+\usepackage{mdframed}
+\usepackage{xcolor} % For color definitions
+
+\definecolor{quoto_back}{RGB}{242, 244, 244} 
+\definecolor{theorem_back}{RGB}{242, 244, 244} 
+% Define a custom environment for colored quote
+\newmdenv[
+  backgroundcolor=quoto_back, % Set the background color
+  skipabove=\topsep,
+  skipbelow=\topsep,
+  leftmargin=0pt,
+  rightmargin=0pt,
+  innerleftmargin=10pt,
+  innerrightmargin=10pt,
+  innertopmargin=10pt,
+  innerbottommargin=10pt,
+  roundcorner=10pt
+]{myquote}
+
+\newenvironment{coloredtheorem}
+  {\begin{mdframed}[backgroundcolor=gray!20]\begin{theorem}}
+  {\end{theorem}\end{mdframed}}
+
+\newtheorem{lemma}{Lemma}
+\newtheorem{claim}{Claim}
+\title[
+% Text entered here will appear in the bottom middle
+]{OptTrot}
+
+\subtitle{
+    Circuit synthesis
+    %IonQ mentoring
+    }
+
+\author[
+% Text entered here will appear in the bottom left corner
+]{
+    Kim, Hyunseong
+}
+
+\institute{
+    GIST}
+\date{
+    Sep 23th, 2024
+    %Sep 9th, 2024
+    }
+
+\begin{document}
+
+% Generate title page
+{
+\setbeamertemplate{footline}{} 
+\begin{frame}
+  \titlepage
+\end{frame}
+}
+\addtocounter{framenumber}{-1}
+
+% You can declare different parts as a parentof sections
+\begin{frame}
+    \tableofcontents[part=1]
+    \tableofcontents[part=2]
+    %\tableofcontents[part=3]
+\end{frame}
+
+\makepart{Optimization result}
+\section{IZ family hamiltonian}
+\subsection{Quantum circuit}
+\begin{frame}
+    
+\end{frame}
+    
+\end{frame}
+\begin{frame}[allowframebreaks]{References}
+    \printbibliography
+\end{frame}
+
+
+\end{document}

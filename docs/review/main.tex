@@ -443,8 +443,8 @@ when we apply Rotation Z gate on the circuit.
     $\{s_i\}$ is called by \textit{stabilizer}, and $\{\tilde{s}_i\}$ is called by \textit{destabilizer}. 
 \end{definition}
 
-The clifford gates act as a transformation of one frame to another frame.
-That is the frame structure is closed under clifford gates.
+The Clifford gates act as a transformation of one frame to another frame.
+That is the frame structure is closed under Clifford gates.
 The closeness and detailed properties were proved in the original paper\cite{schmitz_graph_2023}.
 Description for all detail is not wise but, the operation of basic Clifford gates $[CX, H, S]$
 is worth to note here.
@@ -551,7 +551,7 @@ The optimization direction is clear now.
 
 \begin{proposition}
     For given $H$ consists of $M$ number of Pauli terms, find a sequence of Pauli frames $\{B_i\}_{i=1}^N$
-    minimizing number of clifford operation to take the path defined by the sequence.
+    minimizing number of Clifford operation to take the path defined by the sequence.
 \end{proposition}
 
 
@@ -568,11 +568,11 @@ However, what frames would be sufficient set to represent an optimized Trotter p
 for the hamiltonian?
 We cannot know the solution of such problem when arbitrary hamiltonian was given.
 The only thing we have is a set of Pauli elements given by the hamiltonian.
-Moreover, when two frames were given, what Clifford gates would yield the 
-transformation from $B_i$ to $B_j$?
+Moreover, when two frames were given,$B_i, B_j$, what do Clifford gates yield 
+a transformation from $B_i$ to $B_j$?
 
 \begin{equation*}
-    B_i \rightarrow_{clifford} B_j
+    B_i \rightarrow_{Clifford} B_j
 \end{equation*}
 
 There was no solid process to make the transformation with optimized 
@@ -915,13 +915,14 @@ Let their stabilizers are mutually commuting.
 Let a generated subgroup of generating set $G$ as $\langle G \rangle$.
 
 \begin{theorem}
-    The stabilizer of frame $B$ is a minimum generating set of maximally mutually subgroup of $N$ qubit Pauli group, $\mathcal{P}/U(1)$.
+    The stabilizer of frame $B$ is a minimum generating set of maximally mutually commuting subgroup of $N$ qubit Pauli group, $\mathcal{P}/U(1)$.
 \end{theorem}
 \begin{proof}
     Suppose that $\mbox{Stab}(B)$ is a dependent commuting set of Pauli elements.
     $\exists a, b, c \in \mbox{Stab}(B)$ such that $[a,b] = [b,c] = [a,c] = 0$ but, $c = a+b$.
     From frame representation of $2N$ element, let the index of $a, b, c$ as $i, j, k$.
 
+    Applying $CX_{ij}$ gate to the frame then, 
     \begin{equation*}
         B = \begin{bmatrix}
             \vdots & \vdots\\
@@ -940,8 +941,10 @@ Let a generated subgroup of generating set $G$ as $\langle G \rangle$.
         \end{bmatrix}
     \end{equation*}
 
-    $[s_j, \tilde{s}_k] \neq 0 \bot$. Therefore, $\mbox{Stab}(B)$ is an independent set.
-    For $N$ qubit Pauli group, the cardinality of maximally independent set is $N$,
+    On 2nd frame, $B'$, $s_j = c$, where $[c, \tilde{s_k}] \neq 0 $. 
+    However, $[s_j, \tilde{s_k}] =0, \, j\neq k$ by the definition of Pauli frame, and all Pauli frames are closed to Clifford transformation $\bot$. 
+    Therefore, $\mbox{Stab}(B)$ is an independent set.
+    For $N$ qubits Pauli group, the cardinality of maximally independent set is $N$,
     and $|\mbox{Stab}(B)|=N$, so that it is a maximally independent subset of $\mathcal{P}/U(1)$.
     Since, $\mathcal{P}/U(1)$ has an exchange property by Lemma \ref{lemma:exchange_property}, it is a minimal generating set of mutually commuting subgroup, $\because $ Thm \ref{theorem:generating_independent_set}.
 \end{proof}
@@ -957,15 +960,23 @@ Let a generated subgroup of generating set $G$ as $\langle G \rangle$.
 So do, $\forall p \in \langle \mbox{Stab}(B_j)\rangle, p \in \langle \mbox{Stab}(B_i)\rangle$, and vice verse. 
 \end{proof}
 
-The above theorems guarantee that we can build Clifford transformation
-of $B_1$, and $B_2$ with only a combination of CX gates. 
-In the end, the exact route to get each term in the stabilizer of $B_2$
-by LU decomposition.
+This corollary guarantees that Clifford transformation
+connecting $B_1$, and $B_2$ is a combination of CX gates.
+If CX gate is enough to construct the Clifford transformation,
+then the transformation becomes a \textit{linear} transformation.
+Now, we can apply common linear algebraic methods to calculate 
+the transformation.
+
+The theorem contains several minor results of destabilizer.
+
+\begin{corollary}
+    So do on destabilizers of two frames $B_1$, and $B_2$.
+\end{corollary}
 
 As a side, not for two frames, but for a frame and a Pauli element, the next lemma hold true.
 
-\begin{lemma}
-    In $N$ qubit system, for a given Pauli term, $p$, and Pauli frame, $B$,
+\begin{theorem}
+    In $N$ qubits system, for a given Pauli term, $p$, and Pauli frame, $B$,
     if $p$ is commute with all terms in stabilizers of $B$, $\{s_i\}_{i=1}^N$,
     then a frame $B'$ where $p \in \mbox{Stab}(B')$ is derived 
     from $B$ at most $N-1$ number of CX gates.
@@ -973,16 +984,22 @@ As a side, not for two frames, but for a frame and a Pauli element, the next lem
     \begin{equation}
         B_0 \rightarrow B'
     \end{equation}
-\end{lemma}
+\end{theorem}
+
+
 
 The one thing we need to synthesis circuit, LU decomposition of 
 general Pauli elements. In $IZ$ element, the elimination process is 
 directly corresponded to the $z$ binary vectors.
-However, the general case the element is defined with two binary vectors, $x, z$.
-In that case, using a stacked two linear equation is enough to get a solution.
+However, the general case the element is defined with two binary vectors, $x, z$,
+$B = [\{(x_i, z_i)\}_{i=1}^N, \cdot], \, p = (x, z)$.
+The combination vector $v$ is determined uniquely with two linear system.
 
-$B = [\{(x_i, z_i)\}_{i=1}^N, \cdot], \, p = (x, z)$
+\begin{equation}
+    M_x \vec{v} = \vec{x}, \, M_z \vec{v} = \vec{z}
+\end{equation}
 
+In that case, we can use a stacked two linear equation 
 \begin{equation}
     \begin{bmatrix}
         M_x & \rvline & x\\
@@ -991,29 +1008,193 @@ $B = [\{(x_i, z_i)\}_{i=1}^N, \cdot], \, p = (x, z)$
     \end{bmatrix}
 \end{equation}
 where, $M_x = [x_1| x_2 | \cdots | x_N], M_z = [z_1| z_2 | \cdots | z_N]$.
+Other solution is a constructing a new linear equation by linear combination.
+
+\begin{equation}
+    M v = w \leftrightarrow  (M_x + M_z) v = (x + z) 
+\end{equation}
 
 \subsection{Summary of Clifford operator search process}
 
 Condition: For given two frames, $B_1, B_2$, $\lambda(\mbox{Stab}(B_1), \mbox{Stab}(B_1)) = 0$
 
 \begin{enumerate}
-    \item Calculate the $\oplus, \mbox{Stab}(B_1)$ representation of $p = \vec{b}_p$, $\forall p \in \mbox{Stab}(B_2)$, using RRE over $\mathbb{Z}/2 \mathbb{Z}$.
-    \item Find a transformation matrix using LU or UL decomposition of matrix consists of $\vec{b}_p$.
+    \item Calculate the $\oplus, \mbox{Stab}(B_1)$ representation of $p = \vec{b}_p$, $\forall p \in \mbox{Stab}(B_2)$ by solving a linear equation, $Ab_p = p$
+    \item Using $p$ vectors, construct a matrix representation, $X$, of $\mbox{Stab}(B_2)$.
+    \item An identity matrix $I$ be a representation of $\mbox{Stab}(B_1)$.
+    \item Find a transformation matrix, $A, \, X = A \cdot I$, using LU or UL decomposition of $X = LU/ UL$.
+    \item For $L, U$
+        \begin{enumerate}
+            \item If there is a zero element on diagonal of $L$ or $U$, the $\mbox{Stab}(B_2)$ is not a valid frame.
+            \item Non-zeros of non-diagonal elements are representing a CNOT gates combination.
+            \item The summation of non-zeros of non-digonal elements is a required CNOT gates to make $B_2$ frame.
+            \item $l_{ij}, u_{ij} = 1$ means $CNOT$ from $j$ to $i$ wire.
+        \end{enumerate}
     \item Convert the two $L, U$ matrices as CNOT gates, UL or LU decomposition whose circuit length is shorter than the other.
 \end{enumerate}
 
-\section{Expansion to the general frames}
 
-The previous section we only described a case that the Clifford transformation
+
+\section{Expansion to general frames}
+
+In previous section, we only described a case that the Clifford transformation
 was a composite of only $CX$ gate.
+The CX map generated from the algorithm did not guarantee the optimial 
+decomposition, however, we can estimate what unitary transformation is required 
+to connect two Pauli frames.
+In general Clifford transformation, they are combinations of $H ,S, CX$ gates.
+Still, entanglement gate is only a CX gate but $H$, and $S$ gates
+transform each qubit basis, so that the overall combination is more complicated than 
+$CX$ case.
+To show their properties on Pauli frame graph,
+a new representation would be useful to analyze 
+their structure.
 
-\subsection{Qubit decomposed frame}
+\subsection{Qubit-wise Pauli frame}
+
+Qubit-wise Pauli frame(QPF)
+
+
+\begin{equation}
+    q = \begin{bmatrix}
+        Z-X & I-I & I-I & I-I \\
+        I-I & Z-X & I-I & I-I \\
+        I-I & I-I & Z-X & I-I \\
+        I-I & I-I & I-I & Z-X \\
+    \end{bmatrix} \leftrightarrows
+    \begin{bmatrix}
+        Z_1 & X_1\\
+        Z_2 & X_2\\
+        Z_3 & X_3\\
+        Z_4 & X_4\\
+    \end{bmatrix} = p \in \mbox{PF}
+\end{equation}
+
+We can treat QPF as a tuple of qubit-wise stabilizer and destablizer matrix as 
+
+\begin{equation}
+    q = \left( 
+        \begin{bmatrix}
+        Z & I & I & I \\
+        I & Z & I & I \\
+        I & I & Z & I \\
+        I & I & I & Z \\
+        \end{bmatrix},
+        \begin{bmatrix}
+        X & I & I & I \\
+        I & X & I & I \\
+        I & I & X & I \\
+        I & I & I & X \\
+        \end{bmatrix}
+    \right)
+\end{equation}
+\subsubsection{QPF under Clifford transformation}
+
+\begin{table}[!ht]
+    \centering
+    \caption{Categories of Qubit frame}
+    \begin{tabular}{cc}
+        \hline
+        Prime & Support\\
+        \hline
+        \hline
+        $Z-X$& $I-I$\\
+        $Z-Y$& $I-X$\\
+        $X-Y$& $I-Y$\\
+        -    & $I-Z$\\
+        -    & $X-X$\\
+        -    & $Y-Y$\\
+        -    & $Z-Z$\\
+        \hline
+    \end{tabular}
+\end{table}
+
+\begin{equation}
+    \left( 
+        \begin{bmatrix}
+        Z & I & I & I \\
+        I & Z & I & I \\
+        I & I & Z & I \\
+        I & I & I & Z \\
+        \end{bmatrix},
+        \begin{bmatrix}
+        X & I & I & I \\
+        I & X & I & I \\
+        I & I & X & I \\
+        I & I & I & X \\
+        \end{bmatrix}
+    \right) \rightarrow_{CX(1,2)} 
+    \left( 
+        \begin{bmatrix}
+        Z & I & I & I \\
+        Z & Z & I & I \\
+        I & I & Z & I \\
+        I & I & I & Z \\
+        \end{bmatrix},
+        \begin{bmatrix}
+        X & X & I & I \\
+        I & X & I & I \\
+        I & I & X & I \\
+        I & I & I & X \\
+        \end{bmatrix}
+    \right) 
+\end{equation}
+
+\begin{equation}
+    \left( 
+        \begin{bmatrix}
+        Z & I & I & I \\
+        I & Z & I & I \\
+        I & Y & Z & I \\
+        I & I & I & Z \\
+        \end{bmatrix},
+        \begin{bmatrix}
+        X & I & I & I \\
+        I & X & I & I \\
+        I & I & X & I \\
+        I & I & I & X \\
+        \end{bmatrix}
+    \right) \rightarrow_{H(3)} 
+    \left( 
+        \begin{bmatrix}
+        Z & I & I & I \\
+        I & Z & I & I \\
+        I & I & X & I \\
+        I & I & I & Z \\
+        \end{bmatrix},
+        \begin{bmatrix}
+        X & I & I & I \\
+        I & X & I & I \\
+        I & Y & Z & I \\
+        I & I & I & X \\
+        \end{bmatrix}
+    \right) 
+\end{equation}
+
 
 \begin{theorem}
-    Qubit decomposed frame.
+    Let $N_p(q)$ be a number of prime elements of QPF $q$.
+    $N_p(q)$ is conserved in Clifford transformation.
 \end{theorem}
+\begin{proof}
+    \textbf{CX} 
+
+    \textbf{H} 
+
+    \textbf{S} 
+\end{proof}
+
+\begin{corollary}
+    For $N$ qubits system, $N_p(q) = N, \, \forall q \in \mathbb{QP}$ 
+\end{corollary}
 
 
+\subsubsection{Pauli frame construction}
+
+\begin{theorem}
+    For $N$ number of mutually commuting Pauli elements, choosing a set of corresponding prime elements
+    determines a unique Pauli frame. 
+\end{theorem}
 
 \section{Mutually Commuting Partition}
 

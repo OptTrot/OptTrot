@@ -29,6 +29,7 @@ $$\left( (-i)^{f_p + f_l} \hat{X}^{x_l} \hat{Z}^{z_l} \right) = \left( (-i)^{f_j
 2. $z_l = z_j^\wedge z_k$
 3. $f_l \equiv x_l^\wedge z_l (\text{mod }4)$
 4. $f_p \equiv f_j + f_k - f_l + 2 x_j^\wedge z_k (\text{mod }4)$
+
 ### Commute
 
 $$[P_j, P_k] = 0 \text{ otherwise } \neq 0$$

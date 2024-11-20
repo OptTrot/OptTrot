@@ -75,7 +75,7 @@ PyObject * bitwise_count(PyObject * dummy, PyObject * args)
     
     if (data == NULL)
     {   
-        PyErr_SetString(PyExc_TypeError, "Unexpected data type:%d\n", arr_dtype);
+        PyErr_SetString(PyExc_TypeError, "Unexpected data type\n");//, arr_dtype);
         return NULL;
     }
     

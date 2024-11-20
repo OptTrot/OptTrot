@@ -1,18 +1,7 @@
 \relax 
 \providecommand\hyper@newdestlabel[2]{}
-\providecommand\HyperFirstAtBeginDocument{\AtBeginDocument}
-\HyperFirstAtBeginDocument{\ifx\hyper@anchor\@undefined
-\global\let\oldnewlabel\newlabel
-\gdef\newlabel#1#2{\newlabelxx{#1}#2}
-\gdef\newlabelxx#1#2#3#4#5#6{\oldnewlabel{#1}{{#2}{#3}}}
-\AtEndDocument{\ifx\hyper@anchor\@undefined
-\let\newlabel\oldnewlabel
-\fi}
-\fi}
-\global\let\hyper@last\relax 
-\gdef\HyperFirstAtBeginDocument#1{#1}
-\providecommand\HyField@AuxAddToFields[1]{}
-\providecommand\HyField@AuxAddToCoFields[2]{}
+\providecommand*\HyPL@Entry[1]{}
+\HyPL@Entry{0<</S/D>>}
 \citation{suzuki_finding_2005}
 \citation{dewolf2023quantumcomputinglecturenotes}
 \citation{Low_2019}
@@ -20,52 +9,76 @@
 \citation{Berry_2014}
 \citation{childs_theory_2021}
 \citation{nielsen2010quantum}
-\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
 \citation{johann_2023}
 \citation{PhysRevResearch.5.023146}
 \citation{schmitz_graph_2023}
 \citation{hyunseong_2023_8434890}
-\citation{childs_theory_2021}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{2}{section.1}\protected@file@percent }
+\newlabel{eq:Trotterization}{{1}{2}{Introduction}{equation.1.1}{}}
 \providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
-\newlabel{fig:trotter_standard_circuit}{{\caption@xref {fig:trotter_standard_circuit}{ on input line 174}}{2}{Introduction}{figure.caption.1}{}}
+\newlabel{fig:trotter_standard_circuit}{{\caption@xref {fig:trotter_standard_circuit}{ on input line 179}}{2}{Introduction}{figure.caption.1}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Example of trotter evolution circuit. Where $H = X \otimes Z$}}{2}{figure.caption.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {2}Commuting Partition for Optimization}{2}{section.2}\protected@file@percent }
+\citation{childs_theory_2021}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Commuting Partition for Optimization}{3}{section.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Trotter Error by applying order}{3}{subsection.2.1}\protected@file@percent }
-\newlabel{eq:pauli_evolve}{{11}{3}{Trotter Error by applying order}{equation.2.11}{}}
-\newlabel{eq:evolve_commute}{{12}{3}{Trotter Error by applying order}{equation.2.12}{}}
-\citation{schmitz_graph_2023}
-\citation{schmitz_graph_2023}
-\@writefile{toc}{\contentsline {section}{\numberline {3}Optimizing a circuit with commuting pairs}{4}{section.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Pauli Frame method}{4}{subsection.3.1}\protected@file@percent }
+\newlabel{eq:pauli_evolve}{{11}{4}{Trotter Error by applying order}{equation.2.11}{}}
+\newlabel{eq:evolve_commute}{{12}{4}{Trotter Error by applying order}{equation.2.12}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces  Relative error rate of random Hamiltonian, $H$. The red horizontal line is a largest local hamiltonian decomposition and the each sample are random order of $\exp (-i t P_l)$. }}{5}{figure.caption.2}\protected@file@percent }
 \newlabel{fig:evolve_error}{{2}{5}{Relative error rate of random Hamiltonian, $H$. The red horizontal line is a largest local hamiltonian decomposition and the each sample are random order of $\exp (-i t P_l)$}{figure.caption.2}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces  Example of Pauli Frame analysis of a quantum circuit. The dashed blue lines are corresponded to the below Pauli Frame. If we apply RZ gate on 5th qubit after we applied two CX gates, then the rotation gate is corresponding to $\exp (-i t Z_3Z_5)$. }}{5}{figure.caption.3}\protected@file@percent }
-\newlabel{fig:Pauli Frame}{{3}{5}{Example of Pauli Frame analysis of a quantum circuit. The dashed blue lines are corresponded to the below Pauli Frame. If we apply RZ gate on 5th qubit after we applied two CX gates, then the rotation gate is corresponding to $\exp (-i t Z_3Z_5)$}{figure.caption.3}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Path search over commuting cliques}{6}{subsection.3.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Symplectic representation of Pauli elements}{6}{subsection.3.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.3.1}IZ family}{6}{subsubsection.3.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}Optimizing a circuit over commuting Pauli set}{5}{section.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Standard Trotterization}{5}{subsection.3.1}\protected@file@percent }
+\citation{nielsen2010quantum}
+\citation{schmitz_graph_2023}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Pauli Frame method}{6}{subsection.3.2}\protected@file@percent }
+\citation{schmitz_graph_2023}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces  Example of Pauli Frame analysis of a quantum circuit. The dashed blue lines are corresponded to the below Pauli Frame. If we apply RZ gate on 5th qubit after we applied two CX gates, then the rotation gate is corresponding to $\exp (-i t Z_3Z_5)$. }}{7}{figure.caption.3}\protected@file@percent }
+\newlabel{fig:Pauli Frame}{{3}{7}{Example of Pauli Frame analysis of a quantum circuit. The dashed blue lines are corresponded to the below Pauli Frame. If we apply RZ gate on 5th qubit after we applied two CX gates, then the rotation gate is corresponding to $\exp (-i t Z_3Z_5)$}{figure.caption.3}{}}
+\citation{schmitz_graph_2023}
+\citation{schmitz_graph_2023}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Pauli frame analysis of standard Trotterized circuit of $H = ZZ +XX$.}}{8}{figure.caption.4}\protected@file@percent }
+\newlabel{fig:pauli_frame_analy_1}{{4}{8}{Pauli frame analysis of standard Trotterized circuit of $H = ZZ +XX$}{figure.caption.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Pauli frame analysis of optimized Trotterized circuit of $H = ZZ +XX$.}}{8}{figure.caption.5}\protected@file@percent }
+\newlabel{fig:pauli_frame_analy_2}{{5}{8}{Pauli frame analysis of optimized Trotterized circuit of $H = ZZ +XX$}{figure.caption.5}{}}
+\citation{schmitz_graph_2023}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Symplectic representation of Pauli elements}{9}{subsection.3.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Clifford transformation over commuting cliques}{9}{subsection.3.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.4.1}Over IZ family}{9}{subsubsection.3.4.1}\protected@file@percent }
+\citation{10.1145/3474226}
 \citation{schmitz_graph_2023}
 \citation{sarkar_sets_2021}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}General Commuting set}{8}{subsection.3.4}\protected@file@percent }
+\citation{zeigler_maximally_1974}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Type of entanglement gate from the left top, Controlled-X, Controlled-Z, Controlled-Y, XControlled-X, XControlled-Y, YControlled-Y.}}{11}{figure.caption.6}\protected@file@percent }
+\newlabel{fig:engtanglement_gates}{{6}{11}{Type of entanglement gate from the left top, Controlled-X, Controlled-Z, Controlled-Y, XControlled-X, XControlled-Y, YControlled-Y}{figure.caption.6}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.4.2}General Commuting set}{11}{subsubsection.3.4.2}\protected@file@percent }
+\newlabel{theorem:generating_independent_set}{{3}{12}{}{theorem.3}{}}
+\newlabel{lemma:exchange_property}{{1}{12}{}{lemma.1}{}}
+\newlabel{lemma:element_in_commuting}{{2}{12}{}{lemma.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Summary of Clifford operator search process}{14}{subsection.3.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4}Expansion to general frames}{14}{section.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Qubit-wise Pauli frame}{14}{subsection.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.1}QPF under Clifford transformation}{15}{subsubsection.4.1.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Categories of Qubit frame}}{15}{table.caption.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.2}Pauli frame construction}{15}{subsubsection.4.1.2}\protected@file@percent }
 \citation{karp_reducibility_1972}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Summary of Clifford operator search process}{9}{subsection.3.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {4}Mutually Commuting Partition}{9}{section.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Solve clique problem on Quantum computer}{9}{subsection.4.1}\protected@file@percent }
 \bibstyle{unsrt}
 \bibdata{references}
 \bibcite{suzuki_finding_2005}{1}
 \bibcite{dewolf2023quantumcomputinglecturenotes}{2}
 \bibcite{Low_2019}{3}
 \bibcite{PhysRevLett.114.090502}{4}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Mutually Commuting Partition}{16}{section.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Solve clique problem on Quantum computer}{16}{subsection.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {A}Proof of Modulo field}{16}{appendix.A}\protected@file@percent }
+\newlabel{appendix:modulo_field}{{A}{16}{Proof of Modulo field}{appendix.A}{}}
 \bibcite{Berry_2014}{5}
 \bibcite{childs_theory_2021}{6}
 \bibcite{nielsen2010quantum}{7}
 \bibcite{johann_2023}{8}
 \bibcite{PhysRevResearch.5.023146}{9}
 \bibcite{schmitz_graph_2023}{10}
-\@writefile{toc}{\contentsline {section}{\numberline {A}Proof of Modulo field}{10}{appendix.A}\protected@file@percent }
-\newlabel{appendix:modulo_field}{{A}{10}{Proof of Modulo field}{appendix.A}{}}
 \bibcite{hyunseong_2023_8434890}{11}
-\bibcite{sarkar_sets_2021}{12}
-\bibcite{karp_reducibility_1972}{13}
-\gdef \@abspage@last{11}
+\bibcite{10.1145/3474226}{12}
+\bibcite{sarkar_sets_2021}{13}
+\bibcite{zeigler_maximally_1974}{14}
+\bibcite{karp_reducibility_1972}{15}
+\gdef \@abspage@last{17}

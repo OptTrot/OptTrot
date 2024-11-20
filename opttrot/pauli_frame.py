@@ -10,7 +10,7 @@ class PauliFrame:
 
         self.front = np.vstack([np.zeros(self.qubit), 2**np.arange(self.qubit)]).T.astype(int)
         self.back  = np.vstack([2**np.arange(self.qubit), np.zeros(self.qubit)]).T.astype(int)
-        self.sign = np.ones(self.qubit, 2, dtype=int)
+        self.sign = np.ones((self.qubit, 2), dtype=int)
 
         self.history = []
     def __repr__(self):
@@ -48,9 +48,9 @@ class PauliFrame:
     @property
     def aug_matrices_front(self):
         front_x = np.vstack([int2bin(x, self.qubit) for x in self.front[:, 0]])
-        front_x = np.flip(front_x, axis=0)
+        front_x = np.flip(front_x, axis=1)
         front_z = np.vstack([int2bin(z, self.qubit) for z in self.front[:, 1]])
-        front_z = np.flip(front_z, axis=0)
+        front_z = np.flip(front_z, axis=1)
         return front_x.T, front_z.T
 
     def relative_supp(self, p, count="both"):
@@ -78,6 +78,8 @@ class PauliFrame:
         pf.history = copy(self.history)
         return pf
     def get_previous(self):
+        if len(self.history) ==0:
+            return self
         pf = self.copy()
         (i, j, c_type, hash_key) = pf.history[-1]
         pf.two_entangle(i, j, c_type)
@@ -177,3 +179,31 @@ class PauliFrame:
         self._basis(i, j , c_type, front=False)
 
         self.history.append((i, j, c_type, hash(self)))
+    
+    def add_sep_lin(self):
+        self.history.append((-1, -1, -1, None))
+    def to_qiskit_circuit(self, add_rotate=False):
+        from qiskit import QuantumCircuit
+        qc = QuantumCircuit(self.qubit)
+        if len(self.history) ==0:
+            return qc
+        for (i, j, en_type, _) in self.history:
+            if i > -1:
+                qc.cx(i, j)
+                #qc.rz(np.pi/4, j)
+            else:
+                qc.barrier()
+                for i in range(self.qubit):
+                    qc.rz(np.pi/4, i)
+        return qc
+
+
+    def get_strings(self, loc=0):
+        if loc ==0:
+            return [sym_code2pstr(p, self.qubit) for p in self.front]
+        elif loc ==1:
+            return [sym_code2pstr(p, self.qubit) for p in self.back]
+        else:
+            f = [sym_code2pstr(p, self.qubit) for p in self.front]
+            b = [sym_code2pstr(p, self.qubit) for p in self.back]
+            return (f, b)

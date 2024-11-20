@@ -1,46 +1,46 @@
-This is BibTeX, Version 0.99d (TeX Live 2023)
+This is BibTeX, Version 0.99d (TeX Live 2024)
 Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: main.aux
 The style file: unsrt.bst
 Database file #1: references.bib
-You've used 13 entries,
+You've used 15 entries,
             1791 wiz_defined-function locations,
-            536 strings with 6586 characters,
-and the built_in function-call counts, 3108 in all, are:
-= -- 237
-> -- 197
+            548 strings with 7050 characters,
+and the built_in function-call counts, 3529 in all, are:
+= -- 273
+> -- 218
 < -- 3
-+ -- 70
-- -- 57
-* -- 228
-:= -- 521
-add.period$ -- 41
-call.type$ -- 13
-change.case$ -- 12
++ -- 78
+- -- 63
+* -- 265
+:= -- 592
+add.period$ -- 47
+call.type$ -- 15
+change.case$ -- 14
 chr.to.int$ -- 0
-cite$ -- 13
-duplicate$ -- 130
-empty$ -- 292
-format.name$ -- 57
-if$ -- 682
+cite$ -- 15
+duplicate$ -- 147
+empty$ -- 331
+format.name$ -- 63
+if$ -- 770
 int.to.chr$ -- 0
-int.to.str$ -- 13
-missing$ -- 11
-newline$ -- 67
-num.names$ -- 17
-pop$ -- 46
+int.to.str$ -- 15
+missing$ -- 13
+newline$ -- 77
+num.names$ -- 19
+pop$ -- 48
 preamble$ -- 1
 purify$ -- 0
 quote$ -- 0
-skip$ -- 62
+skip$ -- 69
 stack$ -- 0
-substring$ -- 120
-swap$ -- 29
+substring$ -- 145
+swap$ -- 31
 text.length$ -- 3
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 0
 warning$ -- 0
-while$ -- 26
-width$ -- 15
-write$ -- 145
+while$ -- 30
+width$ -- 17
+write$ -- 167

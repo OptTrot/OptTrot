@@ -1,0 +1,31 @@
+@misc{schmitz_graph_2023,
+	title = {Graph {Optimization} {Perspective} for {Low}-{Depth} {Trotter}-{Suzuki} {Decomposition}},
+	url = {http://arxiv.org/abs/2103.08602},
+	abstract = {Hamiltonian simulation represents an important module in a large class of quantum algorithms and simulations such as quantum machine learning, quantum linear algebra methods, and modeling for physics, material science and chemistry. One of the most prominent methods for realizing the time-evolution unitary is via the Trotter-Suzuki decomposition. However, there is a large class of possible decompositions for the infinitesimal time-evolution operator as the order in which the Hamiltonian terms are implemented is arbitrary. We introduce a novel perspective for generating a low-depth Trotter-Suzuki decomposition assuming the standard Clifford+RZ gate set by adapting ideas from quantum error correction. We map a given Trotter-Suzuki decomposition to a constrained path on a graph which we deem the Pauli Frame Graph (PFG). Each node of the PFG represents the set of possible Hamiltonian terms currently available to be applied, Clifford operations represent a move from one node to another, and so the graph distance represents the gate cost of implementing the decomposition. The problem of finding the optimal decomposition is then equivalent to solving a problem similar to the traveling salesman. Though this is an NP-hard problem, we demonstrate the simplest heuristic, greedy search, and compare the resulting two-qubit gate count and circuit depth to more standard methods for a large class of scientifically relevant Hamiltonians, both fermionic and bosonic, found in chemical, vibrational and condensed matter problems which naturally scale. We find in nearly every case we study, the resulting depth and two-qubit gate counts are less than those provided by standard methods, by as much as an order of magnitude. We also find the method is efficient and amenable to parallelization, making the method scalable for problems of real interest.},
+	urldate = {2023-08-20},
+	publisher = {arXiv},
+	author = {Schmitz, Albert T. and Sawaya, Nicolas P. D. and Johri, Sonika and Matsuura, A. Y.},
+	month = may,
+	year = {2023},
+	note = {arXiv:2103.08602 [cond-mat, physics:math-ph, physics:physics, physics:quant-ph]},
+	keywords = {Quantum Physics, Physics - Computational Physics, Mathematical Physics, Condensed Matter - Materials Science, Pauli-Frame},
+	file = {arXiv Fulltext PDF:C\:\\Users\\cmat411a\\Zotero\\storage\\TPS93W9F\\Schmitz 등 - 2023 - Graph Optimization Perspective for Low-Depth Trott.pdf:application/pdf;arXiv.org Snapshot:C\:\\Users\\cmat411a\\Zotero\\storage\\9ESITMU3\\2103.html:text/html},
+}
+
+
+@article{10.5555/2011763.2011767,
+author = {Patel, Ketan N. and Markov, Igor L. and Hayes, John P.},
+title = {Optimal synthesis of linear reversible circuits},
+year = {2008},
+issue_date = {March 2008},
+publisher = {Rinton Press, Incorporated},
+address = {Paramus, NJ},
+volume = {8},
+number = {3},
+issn = {1533-7146},
+abstract = {In this paper we consider circuit synthesis for n-wire linear reversible circuits using the C-NOT gate library. These circuits are an important class of reversible circuits with applications to quantum computation. Previous algorithms, based on Gaussian elimination and LU-decomposition, yield circuits with O(n2) gates in the worst-case. However, an information theoretic bound suggests that it may be possible to reduce this to as few as O(n2/log n) gates.We give an algorithm that is optimal up to a multiplicative constant, and Θ(log n) times faster than previous methods. While our results are primarily asymptotic, simulation results show that even for relatively small n our algorithm is faster and yields smaller circuits than the standard method. The proposed algorithm has direct applications to the synthesis of stabilizer circuits, an important class of quantum circuits. Generically our algorithm can be interpreted as a matrix decomposition algorithm, yielding an asymptotically efficient decomposition of a binary matrix into a product of elementary matrices.},
+journal = {Quantum Info. Comput.},
+month = {mar},
+pages = {282–294},
+numpages = {13}
+}

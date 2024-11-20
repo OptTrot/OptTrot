@@ -1,0 +1,18 @@
+\contentsline {section}{\numberline {1}Introduction}{2}{section.1}%
+\contentsline {section}{\numberline {2}Commuting Partition for Optimization}{3}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Trotter Error by applying order}{3}{subsection.2.1}%
+\contentsline {section}{\numberline {3}Optimizing a circuit over commuting Pauli set}{5}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Standard Trotterization}{5}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Pauli Frame method}{6}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Symplectic representation of Pauli elements}{9}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}Clifford transformation over commuting cliques}{9}{subsection.3.4}%
+\contentsline {subsubsection}{\numberline {3.4.1}Over IZ family}{9}{subsubsection.3.4.1}%
+\contentsline {subsubsection}{\numberline {3.4.2}General Commuting set}{11}{subsubsection.3.4.2}%
+\contentsline {subsection}{\numberline {3.5}Summary of Clifford operator search process}{14}{subsection.3.5}%
+\contentsline {section}{\numberline {4}Expansion to general frames}{14}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Qubit-wise Pauli frame}{14}{subsection.4.1}%
+\contentsline {subsubsection}{\numberline {4.1.1}QPF under Clifford transformation}{15}{subsubsection.4.1.1}%
+\contentsline {subsubsection}{\numberline {4.1.2}Pauli frame construction}{15}{subsubsection.4.1.2}%
+\contentsline {section}{\numberline {5}Mutually Commuting Partition}{16}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Solve clique problem on Quantum computer}{16}{subsection.5.1}%
+\contentsline {section}{\numberline {A}Proof of Modulo field}{16}{appendix.A}%
